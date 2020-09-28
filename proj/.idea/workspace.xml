@@ -14,24 +14,32 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="wamar.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="wamar.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wamar.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="228">
-              <caret line="60" lean-forward="true" selection-start-line="60" selection-end-line="60" />
+            <state>
+              <caret selection-end-line="2" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="utils.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="utils.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="54">
-              <caret line="1452" selection-start-line="1452" selection-end-line="1452" />
+            <state relative-caret-position="73">
+              <caret line="1508" lean-forward="true" selection-start-line="1508" selection-end-line="1508" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
-                <element signature="e#35913#44269#0" />
-                <element signature="e#50293#50515#0" />
+                <element signature="e#476#505#0" />
+                <element signature="e#1930#2936#0" />
+                <element signature="e#2818#4412#0" />
+                <element signature="e#4439#4663#0" />
+                <element signature="e#4696#4840#0" />
+                <element signature="e#4893#5487#0" />
+                <element signature="e#5524#5699#0" />
+                <element signature="e#42839#43046#0" />
+                <element signature="e#45218#46649#0" />
+                <element signature="e#53365#53926#0" />
               </folding>
             </state>
           </provider>
@@ -40,7 +48,7 @@
       <file leaf-file-name="interpolation.py" pinned="false" current-in-tab="false">
         <entry file="file://D:/pro_software/anaconda/Lib/site-packages/scipy/ndimage/interpolation.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1995">
+            <state relative-caret-position="1824">
               <caret line="105" column="40" selection-start-line="105" selection-start-column="35" selection-end-line="105" selection-end-column="40" />
               <folding>
                 <element signature="e#1442#1506#0" expanded="true" />
@@ -73,7 +81,7 @@
       <file leaf-file-name="utils.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/resUnet/preprocessing/utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="399">
+            <state relative-caret-position="304">
               <caret line="21" column="45" selection-start-line="21" selection-start-column="45" selection-end-line="21" selection-end-column="45" />
               <folding>
                 <element signature="e#207#228#0" expanded="true" />
@@ -90,7 +98,7 @@
       <file leaf-file-name="utils.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/resUnet/utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="551">
+            <state relative-caret-position="456">
               <caret line="29" selection-start-line="29" selection-end-line="29" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
@@ -116,14 +124,15 @@
       <find>order</find>
       <find>dim2</find>
       <find>dim3</find>
+      <find>error</find>
     </findStrings>
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/resUnet/utils.py" />
-        <option value="$PROJECT_DIR$/utils.py" />
         <option value="$PROJECT_DIR$/wamar.py" />
+        <option value="$PROJECT_DIR$/utils.py" />
       </list>
     </option>
   </component>
@@ -146,6 +155,26 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope">
+        <subPane subId="Problems">
+          <expand>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="proj" type="cbb8eebc:String" user="proj" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+        <subPane subId="Project Files">
+          <expand>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="proj" type="cbb8eebc:String" user="proj" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -157,7 +186,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -229,17 +257,17 @@
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
       <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Version Control" order="7" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Python Console" order="7" visible="true" weight="0.407754" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.328877" />
+      <window_info anchor="bottom" id="Version Control" order="7" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Python Console" order="7" visible="true" weight="0.28074867" />
       <window_info anchor="bottom" id="Terminal" order="7" />
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.081140354" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.062865496" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="3" />
-      <window_info active="true" anchor="right" id="SciView" order="3" visible="true" weight="0.05263158" />
+      <window_info anchor="right" id="SciView" order="3" visible="true" weight="0.078947365" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -317,8 +345,16 @@
           <caret line="923" lean-forward="true" selection-start-line="923" selection-end-line="923" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
-            <element signature="e#35913#44269#0" />
-            <element signature="e#50293#50515#0" />
+            <element signature="e#476#505#0" />
+            <element signature="e#1930#2936#0" />
+            <element signature="e#2818#4412#0" />
+            <element signature="e#4439#4663#0" />
+            <element signature="e#4696#4840#0" />
+            <element signature="e#4893#5487#0" />
+            <element signature="e#5524#5699#0" />
+            <element signature="e#42839#43046#0" />
+            <element signature="e#45218#46649#0" />
+            <element signature="e#53365#53926#0" />
           </folding>
         </state>
       </provider>
@@ -493,7 +529,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/resUnet/preprocessing/utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="399">
+        <state relative-caret-position="304">
           <caret line="21" column="45" selection-start-line="21" selection-start-column="45" selection-end-line="21" selection-end-column="45" />
           <folding>
             <element signature="e#207#228#0" expanded="true" />
@@ -506,7 +542,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/resUnet/utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="551">
+        <state relative-caret-position="456">
           <caret line="29" selection-start-line="29" selection-end-line="29" />
           <folding>
             <element signature="e#0#10#0" expanded="true" />
@@ -617,7 +653,7 @@
     </entry>
     <entry file="file://D:/pro_software/anaconda/Lib/site-packages/scipy/ndimage/interpolation.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1995">
+        <state relative-caret-position="1824">
           <caret line="105" column="40" selection-start-line="105" selection-start-column="35" selection-end-line="105" selection-end-column="40" />
           <folding>
             <element signature="e#1442#1506#0" expanded="true" />
@@ -625,22 +661,30 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/utils.py">
+    <entry file="file://$PROJECT_DIR$/wamar.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="54">
-          <caret line="1452" selection-start-line="1452" selection-end-line="1452" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-            <element signature="e#35913#44269#0" />
-            <element signature="e#50293#50515#0" />
-          </folding>
+        <state>
+          <caret selection-end-line="2" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wamar.py">
+    <entry file="file://$PROJECT_DIR$/utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="228">
-          <caret line="60" lean-forward="true" selection-start-line="60" selection-end-line="60" />
+        <state relative-caret-position="73">
+          <caret line="1508" lean-forward="true" selection-start-line="1508" selection-end-line="1508" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+            <element signature="e#476#505#0" />
+            <element signature="e#1930#2936#0" />
+            <element signature="e#2818#4412#0" />
+            <element signature="e#4439#4663#0" />
+            <element signature="e#4696#4840#0" />
+            <element signature="e#4893#5487#0" />
+            <element signature="e#5524#5699#0" />
+            <element signature="e#42839#43046#0" />
+            <element signature="e#45218#46649#0" />
+            <element signature="e#53365#53926#0" />
+          </folding>
         </state>
       </provider>
     </entry>
