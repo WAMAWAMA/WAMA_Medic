@@ -1,27 +1,59 @@
 from utils import *
 
 
-def make_patch(image, mask, or_index, axis_order, ):
-    """
-    （1）首先预处理，外扩固定尺寸or从中心点外扩固定尺寸，截取出来,此时保存：image在原图的位置
-    （2）
-    :param image:
-    :param mask:
-    :return:
-    """
+#
+# img_path = r'E:\@data_NENs\@data_NENs_recurrence\or_data\data\nii\aWITHmask4radiomics\s42_v1.nii'
+# mask_path = r'E:\@data_NENs\@data_NENs_recurrence\or_data\data\nii\aWITHmask4radiomics\s42_v1_m1_w.nii'
+img_path = r'D:\git\testnini\s22_v1.nii.gz'
+mask_path = r'D:\git\testnini\s22_v1_m1.nii.gz'
+subject1 = wama()
+subject1.appendImageAndSementicMaskFromNifti('CT', img_path, mask_path)
+subject1.adjst_Window('CT', 321, 123)
+bbox = subject1.getBbox('CT')
+# 平滑
+# tmpimage = subject1.slice_neibor_add('CT',axis=[2],add_num=[21],add_weights='Mean')
+bbox_image = subject1.getImagefromBbox('CT',ex_mode='square')
+# mask_image = subject1.getImagefromMask('CT')
+# bbox_mask = subject1.getMaskfromBbox('CT',ex_mode='square')
+
+# show3D(mask_image)
+# show3Dslice(subject1.scan['CT'])
+show3Dslice(tmpimage)
+# show3Dslice(bbox_image)
 
 
+bbox = subject1.getBbox('CT')
 
 
-img_pth = r'D:\git\testnini\s22_v1.nii.gz'
-scan,_,_,_,_ = readIMG(img_pth)
+show3Dslice(bbox_image)
+show3Dslice(mask_image)
+
+
+scan,spacing,_,_,axesOrder = readIMG(img_pth)
+# mask,_,_,_,_ = readIMG(mask_pth)
 scan = adjustWindow(scan,321,123)
-# show3Dslice(scan)
+
+
+
+
+# show3Dslice(np.concatenate([mat2gray(mask),mat2gray(scan)],axis=1))
 # show3D(scan)
 
+# 保存数据
+import pickle
+data_output = open('data.pkl','wb')
+pickle.dump(scan,data_output)
+data_output.close()
+
+# 读取数据
+data_input = open('data.pkl','rb')
+read_data = pickle.load(data_input)
+data_input.close()
+
+
 scan_2 = slice_neibor_add_one_dim(scan, 'z', 21, 'Gaussian', 10)
-# scan_2 = slice_neibor_add_one_dim(scan, 'x', 21, 'Mean', 1)
-# scan_2 = slice_neibor_add_one_dim(scan, 'y', 21, 'Mean', 1)
+scan_2 = slice_neibor_add_one_dim(scan_2, 'x', 21, 'Mean', 1)
+scan_2 = slice_neibor_add_one_dim(scan_2, 'y', 21, 'Mean', 1)
 # show3D(scan_2)
 show3Dslice(np.concatenate([scan,scan_2],axis=1))
 
@@ -37,7 +69,7 @@ img_save_path =r'D:\git\testnini\new_s22_v1.nii.gz'
 mask_save_pth =r'D:\git\testnini\new_s22_v1_m1.nii.gz'
 
 
-mask = sitk.ReadImage(img_pth)
+mask = sitk.ReadImage(mask_pth)
 mask = sitk.GetArrayFromImage(mask)
 
 mask = connected_domain_3D(mask)

@@ -20,6 +20,30 @@ except:
     mayavi_exist_flag = 0
 
 
+
+class patch_tmp():
+    """
+    patch类，只是作为存放数据的容器
+    """
+    def __init__(self):
+        self.data = None
+        self.mask = None
+        self.info = {}
+
+
+def save_as_pkl(save_path, obj):
+    data_output = open(save_path, 'wb')
+    pickle.dump(obj, data_output)
+    data_output.close()
+
+def load_from_pkl(load_path):
+    data_input = open(load_path, 'rb')
+    read_data = pickle.load(data_input)
+    data_input.close()
+    return read_data
+
+
+
 def resize3D(img, aimsize, order = 2):
     """
 
@@ -31,6 +55,11 @@ def resize3D(img, aimsize, order = 2):
     if len(aimsize)==1:
         aimsize = [aimsize[0] for _ in range(3)]
     return zoom(img, (aimsize[0] / _shape[0], aimsize[1] / _shape[1], aimsize[2] / _shape[2]), order=order)  # resample for cube_size
+
+def show1D(vector):
+    plt.plot(vector)
+    plt.show()
+
 
 def show2D(img2D):
     plt.imshow(img2D,cmap=plt.cm.gray)
@@ -95,7 +124,7 @@ def connected_domain_3D(image):
     #     output = (output > 0).astype(np.uint8)
     # else:
     #     output = ((output > 0)*255.).astype(np.uint8)
-    output = output.astype(np.float32)
+    # output = output.astype(np.float32)
     # output[output == final_label_list] = -1.
     # output = output < 0.1
     # output = output.astype(np.uint8)
@@ -219,13 +248,22 @@ class VisError(Error):
         self.message = message
 
 
+# show2D(mat2gray(gaussian_filter([81,81], 30)))
+
+
 def gaussian_filter(size, sigma = 10):
     """
+    制作高斯分布的矩阵
     (注意考虑边界的情况），单个单个的元素处理会不会有些慢呢？
     分为1D和2D的情况，这里只允许size是奇数
     :param size: list contains 2 or 1 integer, or only one integer, 1 or [2,3] or [1]  2D filter,
     :param sigma: 越大，越偏平，中间层越不突出
     :return:
+
+    example:
+        show2D(mat2gray(gaussian_filter([81,81], 30)))
+        show1D(mat2gray(gaussian_filter(81,30)))
+
     """
 
     # 制作高斯核存放的矩阵
@@ -334,7 +372,7 @@ def make_bbox_square(bbox):
 def slice_neibor_add_one_dim(scan,  axis, add_num, add_weights, g_sigma):
     """
 
-    :param scan: 3D adarray
+    :param scan: 3D adarray， axis必须是以下顺序（'coronal','sagittal','axial', 或'x','y','z', 或0, 1, 2）
     :param axis: 'coronal','sagittal','axial', 或'x','y','z', 或0, 1, 2
     :param add_num: 奇数
     :param add_weights: ‘Gaussian’，‘Mean’， ‘DeGaussian’（即1-maxminscale（Gaussian））
@@ -428,9 +466,9 @@ class wama():
         # 存储图像的信息
         self.scan = {}  # 字典形式储存数据，如image['CT']=[1,2,3]， 不同模态的图像必须要是配准的！暂时不支持没配准的
         self.spacing = {}  # 字典形式存储数据的,tuple
-        self.origin = {}  # 字典形式存储数据的voxelsize，注意，mask不需要这个信息
-        self.transfmat = {}  # 字典形式存储数据的voxelsize，注意，mask不需要这个信息
-        self.axesOrder = {}  # 字典形式存储数据的voxelsize，注意，mask不需要这个信息
+        self.origin = {}  # 字典形式存储数据的, ??，注意，mask不需要这个信息 todo
+        self.transfmat = {}  # 字典形式存储数据的, ??，注意，mask不需要这个信息
+        self.axesOrder = {}  # 字典形式存储数据的, ??，注意，mask不需要这个信息
 
         self.resample_spacing = {}  # tuple, 一旦存在，则表示图像已经经过了resample
 
@@ -496,12 +534,209 @@ class wama():
 
 
     """读取数据"""
+    # 获取整个图像
     def getImage(self, img_type):
+        """
+
+        :param img_type:
+        :return:  ndarray of whole_size img
+        """
         return deepcopy(self.scan[img_type])
+
+    # 获取整个mask
     def getMask(self, img_type):
+        """
+
+        :param img_type:
+        :return: ndarray of whole_size mask
+        """
         return deepcopy(self.sementic_mask[img_type])
 
+    # 获取bbox内的图像
+    def getImagefromBbox(self, img_type, ex_voxels=0, ex_mms=None, ex_mode='bbox', aim_shape=None):
+        """
+        先用mask和原图点乘，之后外扩一定体素的bbox取出来（注意，各个维度外扩的尺寸是固定的，暂时）,
+        :param img_type:
+        :param ex_voxels: 一个值！不要乱搞乱赋值，ex_voxels = 20 这样子
+        :param ex_mms: 指定外扩的尺寸(优先级最高，一旦有此参数，忽略ex_voxels）
+        :param ex_mode:'bbox' or 'square', bbox则直接在bbox上外扩，square则先变成正方体，再外扩(注意，由于外扩后可能index越界，所以不一定是正方体）
+        :param aim_shape: e.p. [256, 256, 256]
+        :return: array of Mask_ROI
+        """
 
+        # 首先检查是不是有bbox(有bbox必定有mask和img）
+        if img_type not in self.bbox.keys():
+            self.make_bbox_from_mask(img_type)
+
+        # 得到原图
+        mask_roi_img = self.scan[img_type]
+
+        # 得到bbox
+        bbox = self.bbox[img_type]
+
+        # 按照ex_mode，选择是否把bbox变成立方体
+        if ex_mode == 'square':
+            bbox = make_bbox_square(bbox)
+            print('make_bbox_square')
+
+        # 计算需要各个轴外扩体素
+        ex_voxels = [ex_voxels, ex_voxels, ex_voxels]
+        if ex_mms is not None:  # 如果有ex_mms，则由ex_mms生成list格式的ex_voxels
+            if self.is_resample(img_type):
+                ex_voxels = [ex_mms / i for i in list(self.resample_spacing[img_type])]
+            else:
+                ex_voxels = [ex_mms / i for i in list(self.spacing[img_type])]
+
+        # 外扩体素（注意，滑动的轴不外扩）
+        bbox = [bbox[0] - ex_voxels[0], bbox[1] + ex_voxels[0],
+                bbox[2] - ex_voxels[1], bbox[3] + ex_voxels[1],
+                bbox[4] - ex_voxels[2], bbox[5] + ex_voxels[2]]
+
+        # bbox取整
+        bbox = [int(i) for i in bbox]
+
+        # 检查是否越界
+        bbox[0], bbox[2], bbox[4] = [np.max([bbox[0], 0]), np.max([bbox[2], 0]), np.max([bbox[4], 0])]
+        bbox[1], bbox[3], bbox[5] = [np.min([bbox[1], mask_roi_img.shape[0]]),
+                                     np.min([bbox[3], mask_roi_img.shape[1]]),
+                                     np.min([bbox[5], mask_roi_img.shape[2]])]
+
+        # 将图像抠出
+        roi_img = mask_roi_img[bbox[0]:bbox[1], bbox[2]:bbox[3], bbox[4]:bbox[5]]
+
+        # 如果有aim_shape,则返回resize后的
+        if aim_shape is not None:
+            roi_img = resize3D(roi_img, aim_shape, order=0)
+
+        return roi_img
+
+    # 获取mask内的图像
+    def getImagefromMask(self, img_type, ex_voxels=0, ex_mms=None, ex_mode ='bbox', aim_shape = None):
+        """
+        先用mask和原图点乘，之后外扩一定体素的bbox取出来（注意，各个维度外扩的尺寸是固定的，暂时）,
+        :param img_type:
+        :param ex_voxels: 一个值！不要乱搞乱赋值，ex_voxels = 20 这样子
+        :param ex_mms: 指定外扩的尺寸(优先级最高，一旦有此参数，忽略ex_voxels）
+        :param ex_mode:'bbox' or 'square', bbox则直接在bbox上外扩，square则先变成正方体，再外扩(注意，由于外扩后可能index越界，所以不一定是正方体）
+        :param aim_shape: e.p. [256, 256, 256]
+        :return: array of Mask_ROI
+        """
+
+        # 首先检查是不是有bbox(有bbox必定有mask和img）
+        if img_type not in self.bbox.keys():
+            self.make_bbox_from_mask(img_type)
+
+        # 用mask和原图点乘
+        mask_roi_img = self.scan[img_type] * self.sementic_mask[img_type]
+
+        # 得到bbox
+        bbox = self.bbox[img_type]
+
+        # 按照ex_mode，选择是否把bbox变成立方体
+        if ex_mode == 'square':
+            bbox = make_bbox_square(bbox)
+            print('make_bbox_square')
+
+        # 计算需要各个轴外扩体素
+        ex_voxels = [ex_voxels, ex_voxels, ex_voxels]
+        if ex_mms is not None:  # 如果有ex_mms，则由ex_mms生成list格式的ex_voxels
+            if self.is_resample(img_type):
+                ex_voxels = [ex_mms / i for i in list(self.resample_spacing[img_type])]
+            else:
+                ex_voxels = [ex_mms / i for i in list(self.spacing[img_type])]
+
+        # 外扩体素（注意，滑动的轴不外扩）
+        bbox = [bbox[0] - ex_voxels[0], bbox[1] + ex_voxels[0],
+                bbox[2] - ex_voxels[1], bbox[3] + ex_voxels[1],
+                bbox[4] - ex_voxels[2], bbox[5] + ex_voxels[2]]
+
+        # bbox取整
+        bbox = [int(i) for i in bbox]
+
+        # 检查是否越界
+        bbox[0], bbox[2], bbox[4] = [np.max([bbox[0], 0]), np.max([bbox[2], 0]), np.max([bbox[4], 0])]
+        bbox[1], bbox[3], bbox[5] = [np.min([bbox[1], mask_roi_img.shape[0]]),
+                                     np.min([bbox[3], mask_roi_img.shape[1]]),
+                                     np.min([bbox[5], mask_roi_img.shape[2]])]
+
+        # 将图像抠出
+        roi_img = mask_roi_img[bbox[0]:bbox[1], bbox[2]:bbox[3], bbox[4]:bbox[5]]
+
+        # 如果有aim_shape,则返回resize后的
+        if aim_shape is not None:
+            roi_img = resize3D(roi_img, aim_shape, order=0)
+
+        return roi_img
+
+    # 获取bbox内的mask
+    def getMaskfromBbox(self, img_type, ex_voxels=0, ex_mms=None, ex_mode='bbox', aim_shape=None):
+        """
+        先用mask和原图点乘，之后外扩一定体素的bbox取出来（注意，各个维度外扩的尺寸是固定的，暂时）,
+        :param img_type:
+        :param ex_voxels: 一个值！不要乱搞乱赋值，ex_voxels = 20 这样子
+        :param ex_mms: 指定外扩的尺寸(优先级最高，一旦有此参数，忽略ex_voxels）
+        :param ex_mode:'bbox' or 'square', bbox则直接在bbox上外扩，square则先变成正方体，再外扩(注意，由于外扩后可能index越界，所以不一定是正方体）
+        :param aim_shape: e.p. [256, 256, 256]
+        :return: array of Mask_ROI
+        """
+
+        # 首先检查是不是有bbox(有bbox必定有mask和img）
+        if img_type not in self.bbox.keys():
+            self.make_bbox_from_mask(img_type)
+
+        # 得到mask
+        mask_roi_img = self.sementic_mask[img_type]
+
+        # 得到bbox
+        bbox = self.bbox[img_type]
+
+        # 按照ex_mode，选择是否把bbox变成立方体
+        if ex_mode == 'square':
+            bbox = make_bbox_square(bbox)
+            print('make_bbox_square')
+
+        # 计算需要各个轴外扩体素
+        ex_voxels = [ex_voxels, ex_voxels, ex_voxels]
+        if ex_mms is not None:  # 如果有ex_mms，则由ex_mms生成list格式的ex_voxels
+            if self.is_resample(img_type):
+                ex_voxels = [ex_mms / i for i in list(self.resample_spacing[img_type])]
+            else:
+                ex_voxels = [ex_mms / i for i in list(self.spacing[img_type])]
+
+        # 外扩体素（注意，滑动的轴不外扩）
+        bbox = [bbox[0] - ex_voxels[0], bbox[1] + ex_voxels[0],
+                bbox[2] - ex_voxels[1], bbox[3] + ex_voxels[1],
+                bbox[4] - ex_voxels[2], bbox[5] + ex_voxels[2]]
+
+        # bbox取整
+        bbox = [int(i) for i in bbox]
+
+        # 检查是否越界
+        bbox[0], bbox[2], bbox[4] = [np.max([bbox[0], 0]), np.max([bbox[2], 0]), np.max([bbox[4], 0])]
+        bbox[1], bbox[3], bbox[5] = [np.min([bbox[1], mask_roi_img.shape[0]]),
+                                     np.min([bbox[3], mask_roi_img.shape[1]]),
+                                     np.min([bbox[5], mask_roi_img.shape[2]])]
+
+        # 将图像抠出
+        roi_img = mask_roi_img[bbox[0]:bbox[1], bbox[2]:bbox[3], bbox[4]:bbox[5]]
+
+        # 如果有aim_shape,则返回resize后的
+        if aim_shape is not None:
+            roi_img = resize3D(roi_img, aim_shape, order=0)
+
+        return roi_img
+
+
+    #
+    def getBbox(self, img_type):
+        # 首先检查是不是有bbox(有bbox必定有mask和img）
+        if img_type not in self.bbox.keys():
+            self.make_bbox_from_mask(img_type)
+
+        # 得到bbox
+        bbox = self.bbox[img_type]
+
+        return bbox
 
     # """从Array加载数据系列"""
     # def appendImageFromArray(self, img_type ,img_array, voxel_size):
@@ -550,9 +785,9 @@ class wama():
 
         if mayavi_exist_flag:
             if show_type == 'volume':
-                show3D(self.mask[img_type])
+                show3D(self.sementic_mask[img_type])
             if show_type == 'slice':
-                show3Dslice(self.mask[img_type])
+                show3Dslice(self.sementic_mask[img_type])
             else:
                 raise VisError('only volume and slice mode is allowed')
         else:
@@ -622,18 +857,19 @@ class wama():
         mask = self.sementic_mask[img_type]
 
         # 若只取最大连通域，则执行取最大连通域操作
-        mask = connected_domain_3D(mask)
+        if big_connnection:
+            mask = connected_domain_3D(mask)
 
         # 计算得到bbox，形式为[dim0min, dim0max, dim1min, dim1max, dim2min, dim2max]
         indexx = np.where(mask> 0.)
         dim0min, dim0max, dim1min, dim1max, dim2min, dim2max = [np.min(indexx[0]), np.max(indexx[0]),
                                                                 np.min(indexx[1]), np.max(indexx[1]),
                                                                 np.min(indexx[2]), np.max(indexx[2])]
-        self.bbox_mask[img_type] = [dim0min, dim0max, dim1min, dim1max, dim2min, dim2max]
+        self.bbox[img_type] = [dim0min, dim0max, dim1min, dim1max, dim2min, dim2max]
 
     def add_box(self, img_type, bbox):
         """
-        ！！ 需要在resample操作前进行，一旦经过了resample，就不可以添加Bbox了
+        ！！ 需要在resample操作前进行，一旦经过了resample，就不可以添加Bbox了（我是不相信你会自己去算😊）
         :param bbox: 要求按照此axis顺序给出  coronal,sagittal,axial （或x,y,z）
                     example ：[dim0min, dim0max, dim1min, dim1max, dim2min, dim2max]
         """
@@ -665,7 +901,7 @@ class wama():
         if img_type in self.sementic_mask.keys():
             # 得到bbox
             print('making bbox')
-            self.make_bbox_from_mask()
+            self.make_bbox_from_mask(img_type)
             # 返回shape
             print('get from bbox')
             bbox = self.bbox[img_type]
@@ -699,7 +935,11 @@ class wama():
         # 检查aim_spacing todo
 
         # 首先计算出各个轴的scale rate （这里要确保scan和spacing的dim是匹配的）
-        or_spacing = self.spacing[img_type]
+        # 这里需要注意！：如果已经经过了resample，那么需要将最后一此resample的spacing作为当前的spacing todo
+        if self.is_resample(img_type):
+            or_spacing = self.resample_spacing[img_type]
+        else:
+            or_spacing = self.spacing[img_type]
         trans_rate = tuple(np.array(or_spacing)/np.array(aim_spacing))
 
         # resample， 并记录aim_spacing, 以表示图像是经过resample的
@@ -810,8 +1050,6 @@ class wama():
         raise NotImplementedError
 
 
-
-
 """patch的操作"""
 
 # 滑动窗还原patch的操作极其简单，只需要赋patch予到原始空间位置即可
@@ -823,16 +1061,16 @@ def _slide_window_one_axis(array3D,
                            axesOrder,
                            bbox,
                            axis,
-                           slices,
-                           stride,
-                           expand_r,
+                           slices = 1,
+                           stride = 1,
+                           expand_r = 1,
                            mask = None,
                            ex_mode = 'bbox',
                            ex_voxels = 0,
                            ex_mms = None,
                            resample_spacing=None,
                            aim_shape = 256,
-                           aim_shape_dim_order=None):
+                           ):
     """
 
     :param array3D: 3D 图像
@@ -851,7 +1089,7 @@ def _slide_window_one_axis(array3D,
     :param ex_mode: 外扩的模式，一个是在最小外界矩阵直接外扩'bbox'，一个是先变成“正方体”再外扩'square'
     :param ex_voxels: 外扩的像素数（一个整数）
     :param ex_mms: 外扩的尺寸,单位mm（优先级比较高，可以不指定ex_voxels而是指定这个， 当ex_voxels和ex_mms同时存在时，只看ex_mms）
-    :param aim_shape:一个整数（默认输出是正方形）
+    :param aim_shape:一个整数（默认，强制，输出patch的那个面，是正方形）
     :return:
     """
 
@@ -868,7 +1106,7 @@ def _slide_window_one_axis(array3D,
         else:
             ex_voxels = [ex_mms / i for i in list(spacing)]
 
-    # 外扩体素（注意，滑动的轴不外扩）
+    # 外扩体素（注意!!!!，滑动的轴不外扩）
     if axis == 'coronal'  or axis == 'x' or axis == 'dim0' or axis == 0:
         bbox = [bbox[0], bbox[1],
                 bbox[2] - ex_voxels[1], bbox[3] + ex_voxels[1],
@@ -901,37 +1139,211 @@ def _slide_window_one_axis(array3D,
 
     # resize到目标shape，也就是aim_shape,
     # （注意，指定x轴，则y、z轴resize到aim_shape，但由于yz面可能不是正方形，所以暂时取yz面边长"平均数"计算x轴缩放比例）
-    if axis == 'coronal'  or axis == 'x' or axis == 'dim0' or axis == 0:
-        mean_lenth = (_scan.shape[1]+_scan.shape[2])/2  # 取均值
-        _scan = zoom(_scan, (aim_shape/ mean_lenth, aim_shape/_scan.shape[1], aim_shape/_scan.shape[2]), order=3) # cubic插值
+    if aim_shape is not None:
+        if axis == 'coronal'  or axis == 'x' or axis == 'dim0' or axis == 0:
+            mean_lenth = (_scan.shape[1]+_scan.shape[2])/2  # 取均值
+            _scan = zoom(_scan, (aim_shape/ mean_lenth, aim_shape/_scan.shape[1], aim_shape/_scan.shape[2]), order=3) # cubic插值
+            if mask is not None:
+                _mask = zoom(_mask, (aim_shape / mean_lenth, aim_shape / _scan.shape[1], aim_shape / _scan.shape[2]), order=0)  # nearest插值
+        elif axis == 'sagittal' or axis == 'y' or axis == 'dim1' or axis == 1:
+            mean_lenth = (_scan.shape[0]+_scan.shape[2])/2  # 取均值
+            _scan = zoom(_scan, (aim_shape/_scan.shape[0] , aim_shape/mean_lenth, aim_shape/_scan.shape[2]), order=3) # cubic插值
+            if mask is not None:
+                _mask = zoom(_mask, (aim_shape/_scan.shape[0] , aim_shape/mean_lenth, aim_shape/_scan.shape[2]), order=0)  # nearest插值
+        elif axis == 'axial'    or axis == 'z' or axis == 'dim2' or axis == 2:
+            mean_lenth = (_scan.shape[0]+_scan.shape[1])/2  # 取均值
+            _scan = zoom(_scan, (aim_shape/_scan.shape[0] , aim_shape/_scan.shape[1], aim_shape/mean_lenth), order=3) # cubic插值
+            if mask is not None:
+                _mask = zoom(_mask, (aim_shape/_scan.shape[0] , aim_shape/_scan.shape[1], aim_shape/mean_lenth), order=0)  # nearest插值
+
+
+    # 开始分patch，并且保存每个patch所在的index，stride，以备复原 todo
+    patches = []
+    # 首先将目标轴移动到第一个, 进行分patch，并保存信息
+    roi_scan_shape = _scan.shape  # 未经过axis调整，axis order和原图一致时的roi的shape
+    # 将要叠加的轴挪到第一个位置
+    if axis == 'coronal' or axis == 'x' or axis == 0:
+        pass  # 已经在第一维，没什么好做的
+    elif axis == 'sagittal' or axis == 'y' or axis == 1:
+        _scan = np.transpose(_scan, (1, 2, 0))
         if mask is not None:
-            _mask = zoom(_mask, (aim_shape / mean_lenth, aim_shape / _scan.shape[1], aim_shape / _scan.shape[2]), order=0)  # nearest插值
-    elif axis == 'sagittal' or axis == 'y' or axis == 'dim1' or axis == 1:
-        mean_lenth = (_scan.shape[0]+_scan.shape[2])/2  # 取均值
-        _scan = zoom(_scan, (aim_shape/_scan.shape[0] , aim_shape/mean_lenth, aim_shape/_scan.shape[2]), order=3) # cubic插值
+            _mask = np.transpose(_mask, (1, 2, 0))
+    elif axis == 'axial' or axis == 'z' or axis == 2:
+        _scan = np.transpose(_scan, (2, 1, 0))
         if mask is not None:
-            _mask = zoom(_mask, (aim_shape/_scan.shape[0] , aim_shape/mean_lenth, aim_shape/_scan.shape[2]), order=0)  # nearest插值
-    elif axis == 'axial'    or axis == 'z' or axis == 'dim2' or axis == 2:
-        mean_lenth = (_scan.shape[0]+_scan.shape[1])/2  # 取均值
-        _scan = zoom(_scan, (aim_shape/_scan.shape[0] , aim_shape/_scan.shape[1], aim_shape/mean_lenth), order=3) # cubic插值
+            _mask = np.transpose(_mask, (2, 1, 0))
+    else:
+        raise ValueError
+
+
+    # 分patch，patch的data，以及其他shape，index信息保存在patch的类里面，patch.data以及patch.info(结构为字典），之后用pickle打包patch存储即可
+    # 记得将每一个patch的轴还原
+
+    # 先沿着分patch的轴，滑动，滑动的stride（也叫steps）就是参数的stride
+    for i in range(0, _scan.shape[0], stride):
+        # 现在每个i其实就是一个起点，根据这个起点，采样slices个层，间隔位expand_r
+        # 首先采样：这里为什么使用i到i+(slices*expand_r)这个范围，自己好好琢磨下即可（应该是没问题的）
+        _tmp_patch_array = _scan[i:i+(slices*expand_r):expand_r, :, :]  # 放心，就算只取一层，也会是（1，w，h）的shape
         if mask is not None:
-            _mask = zoom(_mask, (aim_shape/_scan.shape[0] , aim_shape/_scan.shape[1], aim_shape/mean_lenth), order=0)  # nearest插值
+            _tmp_mask_array = _mask[i:i+(slices*expand_r):expand_r, :, :]
 
 
-    # 开始分patch，并且保存每个patch所在的index，stride，以备复原
-    a = np.array([0,0,0,0,0,0,0,0,0])
-    a[1:10:2] = np.array([1,2,3,4])
+        # 因为ndarray采样越界也不会报错，so需要进一步
+        # 判断采样出来的array层数是否等于slices，如果小于则证明已经“采到头了”，则break出循环
+        if _tmp_patch_array.shape[0] < slices:
+            break
+        else:  #如果patch尺寸合格，则储存
+            # 将轴的顺序还原patch
+            if True:
+                if axis == 'coronal' or axis == 'x' or axis == 0:
+                    pass  # 已经在第一维，没什么好做的
+                elif axis == 'sagittal' or axis == 'y' or axis == 1:
+                    _tmp_patch_array = np.transpose(_tmp_patch_array, (2, 0, 1))  # 从（1，2，0） 还原到（0，1，2）
+                    if mask is not None:
+                        _tmp_mask_array = np.transpose(_tmp_mask_array, (2, 0, 1))
+                elif axis == 'axial' or axis == 'z' or axis == 2:
+                    _tmp_patch_array = np.transpose(_tmp_patch_array, (2, 1, 0))  # 从（2，1，0） 还原到（0，1，2）
+                    if mask is not None:
+                        _tmp_mask_array = np.transpose(_tmp_mask_array, (2, 1, 0))
+
+            # 储存数据到对象
+            if True:
+                _tmp_patch = patch_tmp()  # 先建个对象储存patch的数据
+                _tmp_patch.data = _tmp_patch_array  # 储存patch图像
+                if mask is not None:
+                    _tmp_patch.mask = _tmp_mask_array
+
+            # 接下来尽可能的保存info，已备还原patch
+            if True:
+                _tmp_patch.info['patch_mode'] = r'_slide_window_one_axis'  # 记录分patch的模式
+                # 记录数据：首先要还原到分patch之前的_scan需要的信息有以下
+                _tmp_patch.info['axis'] = axis
+                _tmp_patch.info['slices'] = slices
+                _tmp_patch.info['expand_r'] = expand_r
+                _tmp_patch.info['index_begin'] = i
+                _tmp_patch.info['_scan.shape'] = roi_scan_shape  # 需要是未经过axis调整（即目标axis提前到第一轴）的shape
+                # 记录数据：之后需要从_scan还原到原图，需要
+                _tmp_patch.info['_scan_bbox'] = bbox  # aim_shape缩放之前的bbox（bbox可以计算出shape）
+                _tmp_patch.info['array3D.shape'] = array3D.shape  # 最原始大图的shape
+                _tmp_patch.info['array3D.spacing'] = spacing  # 最原始大图的spacing
+                _tmp_patch.info['array3D.resample_spacing'] = resample_spacing  # 最原始大图的resample_spacing(如果不是None，则以此为准，此spacing的优先级最高）
+                _tmp_patch.info['array3D.origin'] = origin  # 最原始大图的origin
+                _tmp_patch.info['array3D.transfmat'] = transfmat  # 最原始大图的origin
+                _tmp_patch.info['array3D.axesOrder'] = axesOrder  # 最原始大图的axesOrder，也是_scan、最终patch中data的axesOrder
+
+            # 将对象存入list
+            patches.append(_tmp_patch)
+
+        # 注意，这里我们不从后往前取一个patch，主要原因是我懒得写代码了，（但是这可能会对分割任务有影响）
+        # （因为分割金标准不能随便丢，so 分割任务的stride建议为1， 或 axis_len - slices 能被 stride整除）
+        # so，直接返回patches的liest
 
 
-a = np.array(list(range(20)))
-for i in range(1, a.shape[0], 2):
-    # try:
-    #     print(a[i:i+7:1])
-    # except :
-    #     # print(a[i::1])
-    #     print('s',i)
-    #     break
-    print(a[i:i + 7:1]) if len(a[i:i + 7:1])==7
+
+    # 把_scan的axis顺序也调整回去
+    if True:
+        if axis == 'coronal' or axis == 'x' or axis == 0:
+            pass  # 已经在第一维，没什么好做的
+        elif axis == 'sagittal' or axis == 'y' or axis == 1:
+            _scan = np.transpose(_scan, (2, 0, 1))  # 从（1，2，0） 还原到（0，1，2）
+        elif axis == 'axial' or axis == 'z' or axis == 2:
+            _scan = np.transpose(_scan, (2, 1, 0))  # 从（2，1，0） 还原到（0，1，2）
+
+
+    return patches
+
+def _slide_window_one_axis_reconstruct(patches):
+    """
+    暂时只做到还原image，ok？（如果想还原mask,再说）
+    ps:
+    重建的时候，需要注意，如果patch是有重叠的，那么重复赋值之后，需要把赋值次数为n的体素，除以n以获得均值
+    我们可以额外建立一个数组（值全部为1的矩阵），作为储存各个体素被赋值次数的矩阵，最后再除以这个矩阵即可
+
+    :param patches_list: patch对象组成的list
+    :return:
+    """
+
+    # 构建个容器
+    img = np.zeros(patches[0].info['_scan.shape'],dtype=np.float32)
+    weight_img = np.zeros(patches[0].info['_scan.shape'],dtype=np.float32)
+
+    # 获取axis
+    axis = patches[0].info['axis']
+
+    # 逐个patch放回咯
+    for patch in patches:
+        i = patch.info['index_begin']
+        slices = patch.info['slices']
+        expand_r = patch.info['expand_r']
+
+        if axis == 'coronal' or axis == 'x' or axis == 0:
+            img[i:i + (slices * expand_r):expand_r, :, :] += patch.data
+            weight_img[i:i + (slices * expand_r):expand_r, :, :] += 1.
+        elif axis == 'sagittal' or axis == 'y' or axis == 1:
+            img[:,i:i + (slices * expand_r):expand_r, :] += patch.data
+            weight_img[:,i:i + (slices * expand_r):expand_r, :] += 1.
+        elif axis == 'axial' or axis == 'z' or axis == 2:
+            img[:,:,i:i + (slices * expand_r):expand_r] += patch.data
+            weight_img[:,:,i:i + (slices * expand_r):expand_r] += 1.
+
+
+    # weight_img初始化为0，记录次数，但是可能会有0的存在，所以要修正0为1，因为0次赋值和1次赋值的weight都应该是1
+    weight_img[weight_img<0.5] = 1.
+
+
+    img_final = img / weight_img  # todo  感觉哪里不太对的鸭子
+
+
+
+    # 暂时只做到重建_scan，返回
+    return img
+
+show3Dslice(np.concatenate([_scan,img],axis=1))
+show3Dslice(np.concatenate([_scan,img_final],axis=1))
+show3Dslice(np.concatenate([img,img_final],axis=1))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+"""分patch参考如下代码"""
+# a = np.array(list(range(20)))
+# for i in range(1, a.shape[0], 2):
+#     # try:
+#     #     print(a[i:i+7:1])
+#     # except :
+#     #     # print(a[i::1])
+#     #     print('s',i)
+#     #     break
+#     print(a[i:i + 7:1]) if len(a[i:i + 7:1])==7
 
 # 风车的操作表较难，所以还原回去，需要再旋转，才能和网格对齐，不过这样可能会损失，，一些信息
 # 另外风车的角度间隔也要限制一下，不要太大，否则很诡异
@@ -945,3 +1357,11 @@ for i in range(1, a.shape[0], 2):
 
 
 # 还原patch的时候，额外建立一个array，记录同一个voxel被赋值的次数，最后取平均就完事了
+
+# 还原可能会用到的操作
+#     a = np.array([0,0,0,0,0,0,0,0,0])
+#     a[1:10:2] = np.array([1,2,3,4])
+
+
+
+
