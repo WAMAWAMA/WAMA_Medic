@@ -1,9 +1,8 @@
 import numpy as np
 import SimpleITK as sitk
-import warnings
+
 from scipy.ndimage import zoom
 import pickle
-from mayavi import mlab
 import os
 import math
 import matplotlib.pyplot as plt
@@ -19,7 +18,7 @@ except:
     print ('no mayavi')
     mayavi_exist_flag = 0
 
-
+import warnings
 def printWithFlag(*args, flag = True):
     """
     flag为True才打印
@@ -66,6 +65,7 @@ def show2D(img2D):
 
 def show3D(img3D):
     vol = mlab.pipeline.volume(mlab.pipeline.scalar_field(img3D), name='3-d ultrasound ')
+    mlab.colorbar(orientation='vertical')
     mlab.show()
 
 def show3Dslice(image):
@@ -80,6 +80,7 @@ def show3Dslice(image):
                        plane_orientation='y_axes', slice_index=10)         # 设定y轴切面
     mlab.volume_slice(image, colormap='gray',
                       plane_orientation='z_axes', slice_index=10)          # 设定z轴切面
+    mlab.colorbar(orientation='vertical')
     mlab.show()
 
 
@@ -347,7 +348,7 @@ def gaussian_filter(size, sigma = 10):
     elif dim_num == 1:
         return (gaussian[center[0]]).astype(np.float32)
 
-show2D(mat2gray(  gaussian_filter([81,81], 30)    )   )
+# show2D(mat2gray(  gaussian_filter([81,81], 30)    )   )
 
 
 
@@ -1507,7 +1508,37 @@ def slide_window_n_axis_reconstruct(patches):
     return img_final
 
 
+def winwill_one_axis(array3D, spacing, origin, transfmat, axesOrder,
+                     bbox, axis, slices=1, stride=1, add_num=1,add_weights='Mean',
+                     mask=None, ex_mode='square', ex_voxels=0,
+                     ex_mms=None, resample_spacing=None,
+                     aim_shape=256):
+    """
+    风车式的分patch，限制：过程中会强制将ROI转换为正方体进行分patch，故细长目标不太适合这个操作
+    windmill 对应的参数 (一般使用这个操作前，不要使用slice_nb_add这个操作，ok？)
+    :param array3D:
+    :param spacing:
+    :param origin:
+    :param transfmat:
+    :param axesOrder:
+    :param bbox:
+    :param axis:
+    :param slices:
+    :param stride:
+    :param add_num:
+    :param add_weights:
+    :param mask:
+    :param ex_mode:'square'，winwill模式下，必须是对正方体进行操作，但是这一步不能保证是正方体（可能bbox会越界）
+    :param ex_voxels:
+    :param ex_mms:
+    :param resample_spacing:
+    :param aim_shape: 一个值，必须有，因为最终会通过resize来保证ROI图像是正方体
+    :return:
+    """
+    raise NotImplementedError
 
+def winwill_one_axis_reconstruct():
+    raise NotImplementedError
 # show3Dslice(np.concatenate([_scan,img],axis=1))
 # show3Dslice(np.concatenate([_scan,img_final],axis=1))
 # show3Dslice(np.concatenate([img,img_final],axis=1))
@@ -1555,14 +1586,8 @@ def slide_window_n_axis_reconstruct(patches):
 #     #     break
 #     print(a[i:i + 7:1]) if len(a[i:i + 7:1])==7
 
-# 风车的操作表较难，所以还原回去，需要再旋转，才能和网格对齐，不过这样可能会损失，，一些信息
+# 风车的操作较难，所以还原回去，需要再旋转，才能和网格对齐，不过这样可能会损失，，一些信息
 # 另外风车的角度间隔也要限制一下，不要太大，否则很诡异
-
-
-
-
-
-
 
 
 

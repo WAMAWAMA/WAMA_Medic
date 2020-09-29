@@ -1,4 +1,4 @@
-from utils import *
+from wama.utils import *
 
 
 #
@@ -45,8 +45,8 @@ patches = slide_window_n_axis(bbox_image,
                            transfmat=None,
                            axesOrder=None,
                            bbox = [0, bbox_image.shape[0],0, bbox_image.shape[1],0, bbox_image.shape[2]],
-                           slices = [bbox_image.shape[0]//2-2,bbox_image.shape[1]//2-2,bbox_image.shape[2]//2]-2,
-                           stride = [bbox_image.shape[0]//2,bbox_image.shape[1]//2,bbox_image.shape[2]//2],
+                           slices = [bbox_image.shape[0]//4-4,bbox_image.shape[1]//4-4,bbox_image.shape[2]//4-4],
+                           stride = [30,30,30],
                            expand_r = [1,1,1],
                            mask = None,
                            ex_mode = 'bbox',
@@ -57,9 +57,13 @@ patches = slide_window_n_axis(bbox_image,
 
 
 # reconstuct_img = slide_window_n_axis_reconstruct([patches[0]])
-reconstuct_img = slide_window_n_axis_reconstruct(patches[0:3])
-# show3Dslice(np.concatenate([reconstuct_img,bbox_image],axis=1))
+reconstuct_img = slide_window_n_axis_reconstruct(patches)
+show3Dslice(mat2gray(np.concatenate([reconstuct_img,bbox_image],axis=1)))
 show3D(np.concatenate([reconstuct_img,bbox_image],axis=1))
+# show3D((reconstuct_img))
+# show3D((bbox_image))
+# show3Dslice(bbox_image)
+# show3Dslice(bbox_image)
 
 # bbox = subject1.getBbox('CT')
 #
