@@ -2,10 +2,10 @@ from wama.utils import *
 
 
 #
-# img_path = r'E:\@data_NENs\@data_NENs_recurrence\or_data\data\nii\aWITHmask4radiomics\s42_v1.nii'
-# mask_path = r'E:\@data_NENs\@data_NENs_recurrence\or_data\data\nii\aWITHmask4radiomics\s42_v1_m1_w.nii'
-img_path = r'D:\git\testnini\s22_v1.nii.gz'
-mask_path = r'D:\git\testnini\s22_v1_m1.nii.gz'
+img_path = r'E:\@data_NENs\@data_NENs_recurrence\or_data\data\nii\aWITHmask4radiomics\s42_v1.nii'
+mask_path = r'E:\@data_NENs\@data_NENs_recurrence\or_data\data\nii\aWITHmask4radiomics\s42_v1_m1_w.nii'
+# img_path = r'D:\git\testnini\s22_v1.nii.gz'
+# mask_path = r'D:\git\testnini\s22_v1_m1.nii.gz'
 subject1 = wama()
 subject1.appendImageAndSementicMaskFromNifti('CT', img_path, mask_path)
 subject1.adjst_Window('CT', 321, 123)
@@ -13,6 +13,7 @@ bbox = subject1.getBbox('CT')
 # 平滑
 # tmpimage = subject1.slice_neibor_add('CT',axis=[2],add_num=[21],add_weights='Mean')
 bbox_image = subject1.getImagefromBbox('CT',ex_mode='square')
+bbox_mask = subject1.getMaskfromBbox('CT',ex_mode='square')
 # mask_image = subject1.getImagefromMask('CT')
 # bbox_mask = subject1.getMaskfromBbox('CT',ex_mode='square')
 
@@ -45,20 +46,21 @@ patches = slide_window_n_axis(bbox_image,
                            transfmat=None,
                            axesOrder=None,
                            bbox = [0, bbox_image.shape[0],0, bbox_image.shape[1],0, bbox_image.shape[2]],
-                           slices = [bbox_image.shape[0]//4-4,bbox_image.shape[1]//4-4,bbox_image.shape[2]//4-4],
-                           stride = [30,30,30],
+                           slices = [bbox_image.shape[0]//2-4,bbox_image.shape[1]//2-4,bbox_image.shape[2]//2-4],
+                           stride = [bbox_image.shape[0]//2,bbox_image.shape[1]//2,bbox_image.shape[2]//2],
                            expand_r = [1,1,1],
-                           mask = None,
+                           mask = bbox_mask,
                            ex_mode = 'bbox',
                            ex_voxels = [0,0,0],
                            ex_mms = None,
                            resample_spacing=None,
                            aim_shape = None)
 
-
+for pp in patches:
+    pp.data = pp.mask
 # reconstuct_img = slide_window_n_axis_reconstruct([patches[0]])
 reconstuct_img = slide_window_n_axis_reconstruct(patches)
-show3Dslice(mat2gray(np.concatenate([reconstuct_img,bbox_image],axis=1)))
+# show3Dslice(mat2gray(np.concatenate([reconstuct_img,bbox_image],axis=1)))
 show3D(np.concatenate([reconstuct_img,bbox_image],axis=1))
 # show3D((reconstuct_img))
 # show3D((bbox_image))

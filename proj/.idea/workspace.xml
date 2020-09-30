@@ -15,11 +15,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="wamar.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="wamar.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wamar.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="304">
-              <caret line="64" column="25" lean-forward="true" selection-start-line="64" selection-start-column="25" selection-end-line="64" selection-end-column="25" />
+            <state relative-caret-position="513">
+              <caret line="63" column="58" selection-start-line="63" selection-start-column="58" selection-end-line="63" selection-end-column="58" />
             </state>
           </provider>
         </entry>
@@ -27,15 +27,84 @@
       <file leaf-file-name="data_augmentation.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wama/data_augmentation.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="219">
-              <caret line="23" column="53" lean-forward="true" selection-start-line="23" selection-start-column="53" selection-end-line="23" selection-end-column="53" />
+            <state relative-caret-position="437">
+              <caret line="41" lean-forward="true" selection-start-line="41" selection-end-line="41" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="data_loader.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/wama/data_loader.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="441">
+              <caret line="153" lean-forward="true" selection-start-line="153" selection-end-line="153" />
+              <folding>
+                <element signature="e#45#73#0" expanded="true" />
+                <element signature="e#406#2898#0" />
+                <element signature="e#2844#5239#0" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file leaf-file-name="demo_DKFZ_batchgenerator.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/demo_DKFZ_batchgenerator.py">
-          <provider selected="true" editor-type-id="text-editor" />
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="232">
+              <caret line="112" column="26" selection-start-line="112" selection-start-column="22" selection-end-line="112" selection-end-column="26" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="data_loader.py" pinned="false" current-in-tab="false">
+        <entry file="file://D:/pro_software/anaconda/Lib/site-packages/batchgenerators/dataloading/data_loader.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="161">
+              <caret line="55" column="23" selection-start-line="55" selection-start-column="13" selection-end-line="55" selection-end-column="23" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="utils.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/wama/utils.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="268">
+              <caret line="239" column="12" lean-forward="true" selection-start-line="239" selection-start-column="12" selection-end-line="239" selection-end-column="12" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+                <element signature="e#889#1244#0" />
+                <element signature="e#1270#1301#0" />
+                <element signature="e#1327#1376#0" />
+                <element signature="e#1401#1544#0" />
+                <element signature="e#1574#2079#0" />
+                <element signature="e#2144#3168#0" />
+                <element signature="e#3207#4801#0" />
+                <element signature="e#4828#5052#0" />
+                <element signature="e#5085#5229#0" />
+                <element signature="e#5282#5876#0" />
+                <element signature="e#5913#6088#0" />
+                <element signature="e#7245#7710#0" />
+                <element signature="e#7763#7819#0" />
+                <element signature="e#7850#8095#0" />
+                <element signature="e#8124#8369#0" />
+                <element signature="e#8417#10245#0" />
+                <element signature="e#10347#11052#0" />
+                <element signature="e#11129#11581#0" />
+                <element signature="e#11616#12176#0" />
+                <element signature="e#12257#14866#0" />
+                <element signature="e#14896#14924#0" />
+                <element signature="e#45555#46966#0" />
+                <element signature="e#54816#55421#0" />
+                <element signature="e#55463#55488#0" />
+                <element signature="e#55489#55538#0" />
+                <element signature="e#34414#34616#0" />
+                <element signature="e#34637#55888#0" />
+              </folding>
+            </state>
+          </provider>
         </entry>
       </file>
       <file leaf-file-name="demo_wama.py" pinned="false" current-in-tab="false">
@@ -43,59 +112,11 @@
           <provider selected="true" editor-type-id="text-editor" />
         </entry>
       </file>
-      <file leaf-file-name="data_loader.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/wama/data_loader.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state>
-              <caret column="44" lean-forward="true" selection-start-column="44" selection-end-column="44" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="spatial_transforms.py" pinned="false" current-in-tab="false">
-        <entry file="file://D:/pro_software/anaconda/Lib/site-packages/batchgenerators/transforms/spatial_transforms.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="143">
-              <caret line="414" column="41" selection-start-line="414" selection-start-column="41" selection-end-line="414" selection-end-column="41" />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="spatial_transformations.py" pinned="false" current-in-tab="false">
         <entry file="file://D:/pro_software/anaconda/Lib/site-packages/batchgenerators/augmentations/spatial_transformations.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="171">
-              <caret line="377" column="20" selection-start-line="377" selection-start-column="20" selection-end-line="377" selection-end-column="20" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="__init__.py" pinned="false" current-in-tab="false">
-        <entry file="file://D:/pro_software/anaconda/Lib/site-packages/batchgenerators/transforms/__init__.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="323">
-              <caret line="17" column="21" selection-start-line="17" selection-start-column="4" selection-end-line="17" selection-end-column="21" />
-              <folding>
-                <element signature="e#0#73#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="multi_threaded_augmenter.py" pinned="false" current-in-tab="false">
-        <entry file="file://D:/pro_software/anaconda/Lib/site-packages/batchgenerators/dataloading/multi_threaded_augmenter.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1624">
-              <caret line="157" column="23" selection-start-line="157" selection-start-column="13" selection-end-line="157" selection-end-column="23" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="single_threaded_augmenter.py" pinned="false" current-in-tab="false">
-        <entry file="file://D:/pro_software/anaconda/Lib/site-packages/batchgenerators/dataloading/single_threaded_augmenter.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="133">
-              <caret line="35" column="36" selection-start-line="35" selection-start-column="36" selection-end-line="35" selection-end-column="36" />
+            <state relative-caret-position="361">
+              <caret line="19" selection-start-line="19" selection-end-line="19" />
             </state>
           </provider>
         </entry>
@@ -129,12 +150,14 @@
         <option value="$PROJECT_DIR$/resUnet/utils.py" />
         <option value="$PROJECT_DIR$/utils.py" />
         <option value="D:/pro_software/anaconda/Lib/site-packages/batchgenerators/dataloading/single_threaded_augmenter.py" />
-        <option value="$PROJECT_DIR$/wamar.py" />
-        <option value="$PROJECT_DIR$/wama/utils.py" />
         <option value="$PROJECT_DIR$/data_augmentation.py" />
-        <option value="$PROJECT_DIR$/demo_DKFZ_batchgenerator.py" />
         <option value="$PROJECT_DIR$/demo_wama.py" />
         <option value="$PROJECT_DIR$/data_loader.py" />
+        <option value="$PROJECT_DIR$/wama/utils.py" />
+        <option value="$PROJECT_DIR$/demo_DKFZ_batchgenerator.py" />
+        <option value="$PROJECT_DIR$/wamar.py" />
+        <option value="$PROJECT_DIR$/wama/data_augmentation.py" />
+        <option value="$PROJECT_DIR$/wama/data_loader.py" />
       </list>
     </option>
   </component>
@@ -291,17 +314,17 @@
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
       <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.32883817" />
       <window_info anchor="bottom" id="Version Control" order="7" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Python Console" order="7" visible="true" weight="0.4979253" />
+      <window_info active="true" anchor="bottom" id="Python Console" order="7" visible="true" weight="0.29045644" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.32883817" />
       <window_info anchor="bottom" id="Terminal" order="7" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.15239726" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.15582192" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="3" />
-      <window_info anchor="right" id="SciView" order="3" visible="true" weight="0.14212328" />
+      <window_info anchor="right" id="SciView" order="3" visible="true" weight="0.14155251" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -319,37 +342,10 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="7" />
+      <option name="time" value="8" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/resUnet/preprocessing/augmentation.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/resUnet/utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="456">
-          <caret line="29" selection-start-line="29" selection-end-line="29" />
-          <folding>
-            <element signature="e#0#10#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/wamar.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="11058">
-          <caret line="582" lean-forward="true" selection-start-line="582" selection-end-line="582" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://D:/pro_software/anaconda/Lib/site-packages/scipy/ndimage/interpolation.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="10032">
-          <caret line="528" column="25" lean-forward="true" selection-start-line="528" selection-start-column="25" selection-end-line="528" selection-end-column="25" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/preprocessing/utils.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="570">
@@ -361,9 +357,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="722">
           <caret line="38" selection-start-line="38" selection-end-line="38" selection-end-column="30" />
-          <folding>
-            <element signature="e#22029#24655#0" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -371,9 +364,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="304">
           <caret line="21" column="45" selection-start-line="21" selection-start-column="45" selection-end-line="21" selection-end-column="45" />
-          <folding>
-            <element signature="e#207#228#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -384,9 +374,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="456">
           <caret line="29" selection-start-line="29" selection-end-line="29" />
-          <folding>
-            <element signature="e#0#10#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -408,9 +395,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="3059">
           <caret line="161" selection-start-line="161" selection-end-line="161" />
-          <folding>
-            <element signature="e#22029#24655#0" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -418,9 +402,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="304">
           <caret line="21" column="45" selection-start-line="21" selection-start-column="45" selection-end-line="21" selection-end-column="45" />
-          <folding>
-            <element signature="e#207#228#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -431,9 +412,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="456">
           <caret line="29" selection-start-line="29" selection-end-line="29" />
-          <folding>
-            <element signature="e#0#10#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -451,9 +429,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="304">
           <caret line="21" column="45" selection-start-line="21" selection-start-column="45" selection-end-line="21" selection-end-column="45" />
-          <folding>
-            <element signature="e#207#228#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -464,9 +439,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="456">
           <caret line="29" selection-start-line="29" selection-end-line="29" />
-          <folding>
-            <element signature="e#0#10#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -537,9 +509,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="722">
           <caret line="38" selection-start-line="38" selection-end-line="38" selection-end-column="30" />
-          <folding>
-            <element signature="e#22029#24655#0" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -575,9 +544,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1824">
           <caret line="105" column="40" selection-start-line="105" selection-start-column="35" selection-end-line="105" selection-end-column="40" />
-          <folding>
-            <element signature="e#1442#1506#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -590,14 +556,14 @@
     </entry>
     <entry file="file://D:/pro_software/anaconda/Lib/site-packages/batchgenerators/dataloading/multi_threaded_augmenter.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1624">
+        <state relative-caret-position="2888">
           <caret line="157" column="23" selection-start-line="157" selection-start-column="13" selection-end-line="157" selection-end-column="23" />
         </state>
       </provider>
     </entry>
     <entry file="file://D:/pro_software/anaconda/Lib/site-packages/batchgenerators/dataloading/single_threaded_augmenter.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="133">
+        <state relative-caret-position="627">
           <caret line="35" column="36" selection-start-line="35" selection-start-column="36" selection-end-line="35" selection-end-column="36" />
         </state>
       </provider>
@@ -616,19 +582,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wama/utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="228">
-          <caret line="351" lean-forward="true" selection-start-line="351" selection-end-line="351" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://D:/pro_software/anaconda/Lib/site-packages/batchgenerators/transforms/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="323">
+        <state relative-caret-position="57">
           <caret line="17" column="21" selection-start-line="17" selection-start-column="4" selection-end-line="17" selection-end-column="21" />
           <folding>
             <element signature="e#0#73#0" expanded="true" />
@@ -636,44 +592,119 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://D:/pro_software/anaconda/Lib/site-packages/torch/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-171" />
+      </provider>
+    </entry>
     <entry file="file://D:/pro_software/anaconda/Lib/site-packages/batchgenerators/augmentations/spatial_transformations.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="171">
-          <caret line="377" column="20" selection-start-line="377" selection-start-column="20" selection-end-line="377" selection-end-column="20" />
+        <state relative-caret-position="361">
+          <caret line="19" selection-start-line="19" selection-end-line="19" />
         </state>
       </provider>
     </entry>
-    <entry file="file://D:/pro_software/anaconda/Lib/site-packages/batchgenerators/transforms/spatial_transforms.py">
+    <entry file="file://D:/pro_software/anaconda/Lib/site-packages/torch/utils/data/dataloader.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="143">
-          <caret line="414" column="41" selection-start-line="414" selection-start-column="41" selection-end-line="414" selection-end-column="41" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/wama/data_augmentation.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="219">
-          <caret line="23" column="53" lean-forward="true" selection-start-line="23" selection-start-column="53" selection-end-line="23" selection-end-column="53" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/demo_DKFZ_batchgenerator.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/demo_wama.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/wama/data_loader.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="44" lean-forward="true" selection-start-column="44" selection-end-column="44" />
+        <state relative-caret-position="-528">
+          <caret line="767" column="8" selection-start-line="767" selection-start-column="8" selection-end-line="767" selection-end-column="8" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/wamar.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="304">
-          <caret line="64" column="25" lean-forward="true" selection-start-line="64" selection-start-column="25" selection-end-line="64" selection-end-column="25" />
+        <state relative-caret-position="513">
+          <caret line="63" column="58" selection-start-line="63" selection-start-column="58" selection-end-line="63" selection-end-column="58" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://D:/pro_software/anaconda/Lib/site-packages/imgaug/augmenters/meta.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2099">
+          <caret line="3084" column="8" selection-start-line="3084" selection-start-column="8" selection-end-line="3084" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://D:/pro_software/anaconda/Lib/site-packages/batchgenerators/dataloading/data_loader.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="161">
+          <caret line="55" column="23" selection-start-line="55" selection-start-column="13" selection-end-line="55" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wama/utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="268">
+          <caret line="239" column="12" lean-forward="true" selection-start-line="239" selection-start-column="12" selection-end-line="239" selection-end-column="12" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+            <element signature="e#889#1244#0" />
+            <element signature="e#1270#1301#0" />
+            <element signature="e#1327#1376#0" />
+            <element signature="e#1401#1544#0" />
+            <element signature="e#1574#2079#0" />
+            <element signature="e#2144#3168#0" />
+            <element signature="e#3207#4801#0" />
+            <element signature="e#4828#5052#0" />
+            <element signature="e#5085#5229#0" />
+            <element signature="e#5282#5876#0" />
+            <element signature="e#5913#6088#0" />
+            <element signature="e#7245#7710#0" />
+            <element signature="e#7763#7819#0" />
+            <element signature="e#7850#8095#0" />
+            <element signature="e#8124#8369#0" />
+            <element signature="e#8417#10245#0" />
+            <element signature="e#10347#11052#0" />
+            <element signature="e#11129#11581#0" />
+            <element signature="e#11616#12176#0" />
+            <element signature="e#12257#14866#0" />
+            <element signature="e#14896#14924#0" />
+            <element signature="e#45555#46966#0" />
+            <element signature="e#54816#55421#0" />
+            <element signature="e#55463#55488#0" />
+            <element signature="e#55489#55538#0" />
+            <element signature="e#34414#34616#0" />
+            <element signature="e#34637#55888#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://D:/pro_software/anaconda/Lib/site-packages/batchgenerators/transforms/spatial_transforms.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="210">
+          <caret line="184" column="6" selection-start-line="184" selection-start-column="6" selection-end-line="184" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/demo_wama.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/demo_DKFZ_batchgenerator.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="232">
+          <caret line="112" column="26" selection-start-line="112" selection-start-column="22" selection-end-line="112" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wama/data_augmentation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="437">
+          <caret line="41" lean-forward="true" selection-start-line="41" selection-end-line="41" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wama/data_loader.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="441">
+          <caret line="153" lean-forward="true" selection-start-line="153" selection-end-line="153" />
+          <folding>
+            <element signature="e#45#73#0" expanded="true" />
+            <element signature="e#406#2898#0" />
+            <element signature="e#2844#5239#0" />
+          </folding>
         </state>
       </provider>
     </entry>

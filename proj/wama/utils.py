@@ -484,16 +484,490 @@ def slice_neibor_add_one_dim(scan,  axis, add_num, add_weights, g_sigma):
     return tmp_array
 
 
+
+def list_unique(lis):
+    """
+    list去重复元素
+    :param lis:
+    :return:
+    """
+    return list(set(lis))
+
+
+
+
+
+"""patch的操作"""
+# 滑动窗还原patch的操作极其简单，只需要赋patch予到原始空间位置即可
+# 分patch的操作包括：基于bbox, 外扩一定像素，resize到目标大小，分patch，储存patches
+def slide_window_one_axis(array3D, spacing, origin, transfmat, axesOrder,
+                          bbox, axis, slices=1, stride=1, expand_r=1,
+                          mask=None, ex_mode='bbox', ex_voxels=0,
+                          ex_mms=None, resample_spacing=None,
+                          aim_shape=256):
+    """
+    1D 分patch的操作，即沿着一个axis分patch，返回的patch可以是2D的也可以是3D的
+    :param array3D: 3D 图像 3D array
+    :param spacing: tuple, 图像的原始spacing，对应[coronal,sagittal,axial]
+    :param origin: 原始图像的realworld原点（用sitk读图时会返回的一个变量）
+    :param transfmat: 原始图像的坐标系基向量（所谓的空间方向向量，用sitk读图时会返回的一个变量）
+    :param axesOrder: 3D array的坐标轴的顺序，如['coronal','sagittal','axial']
+    :param resample_spacing: 重采样后的spacing, list，如[0.5,0.5,0.5]
+
+    :param bbox: 肿瘤orROI的bbox,如[1,40,1,40,1,40]（注意是最小外接立方体，但是可能不是正方体，且与坐标系轴平行）
+    :param axis: 分patch沿着的轴, 可以指定为['coronal','sagittal','axial']， or['x','y','z'], or [0,1,2] or ['dim0', 'dim1', dim2']
+    :param slices: 层数，即patch的层厚
+    :param stride: slide window 每次滑动的步长
+    :param expand_r: slice间的膨胀因子，1则不膨胀,2 则每隔1层取一层，3 则每隔2层取一层依此类推
+    :param mask: ndarray，shape和array3D一致，即如果有分割的图，可一起输入进行分patch
+    :param ex_mode: 外扩的模式，一个是在最小外界矩阵直接外扩'bbox'，一个是先变成“正方体”再外扩'square'
+    :param ex_voxels: 外扩的像素数（一个整数）
+    :param ex_mms: 外扩的尺寸,单位mm（优先级比较高，可以不指定ex_voxels而是指定这个， 当ex_voxels和ex_mms同时存在时，只看ex_mms）
+    :param aim_shape:一个整数（默认，强制，输出patch的那个面，是正方形）
+    :return:
+    """
+
+
+    # 按照ex_mode，选择是否把bbox变成立方体
+    if ex_mode == 'bbox':
+        pass
+    elif ex_mode ==  'square':
+        bbox = make_bbox_square(bbox)
+    else:
+        raise ValueError(r'ex_mode shoud be "bbox" or "square"')
+
+
+    # 计算需要各个轴外扩体素
+    ex_voxels = [ex_voxels, ex_voxels, ex_voxels]
+    if ex_mms is not None: # 如果有ex_mms，则由ex_mms重新生成list格式的ex_voxels
+        if resample_spacing is not None:  # 如果经过resampling，则当前spacing是resample_spacing
+            ex_voxels = [ex_mms / i for i in list(resample_spacing)]
+        else:
+            ex_voxels = [ex_mms / i for i in list(spacing)]
+
+    # 外扩体素（注意!!!!，滑动的轴不外扩!!!!）
+    if axis == 'coronal'  or axis == 'x' or axis == 'dim0' or axis == 0:
+        bbox = [bbox[0], bbox[1],
+                bbox[2] - ex_voxels[1], bbox[3] + ex_voxels[1],
+                bbox[4] - ex_voxels[2], bbox[5] + ex_voxels[2]]
+    elif axis == 'sagittal' or axis == 'y' or axis == 'dim1' or axis == 1:
+        bbox = [bbox[0] - ex_voxels[0], bbox[1] + ex_voxels[0],
+                bbox[2], bbox[3],
+                bbox[4] - ex_voxels[2], bbox[5] + ex_voxels[2]]
+    elif axis == 'axial'    or axis == 'z' or axis == 'dim2' or axis == 2:
+        bbox = [bbox[0] - ex_voxels[0], bbox[1] + ex_voxels[0],
+                bbox[2] - ex_voxels[1], bbox[3] + ex_voxels[1],
+                bbox[4], bbox[5]]
+
+    # bbox取整
+    bbox = [int(i) for i in bbox]
+
+    # 检查bbox坐标是否越界
+    bbox[0], bbox[2], bbox[4] = [np.max([bbox[0], 0]), np.max([bbox[2], 0]), np.max([bbox[4], 0])]
+    bbox[1], bbox[3], bbox[5] = [np.min([bbox[1], array3D.shape[0]]),
+                                 np.min([bbox[3], array3D.shape[1]]),
+                                 np.min([bbox[5], array3D.shape[2]])]
+
+
+
+    # 抠出肿瘤，有mask则一起操作
+    _scan = array3D[bbox[0]:bbox[1], bbox[2]:bbox[3], bbox[4]:bbox[5]]
+    if mask is not None:
+        _mask = mask[bbox[0]:bbox[1], bbox[2]:bbox[3], bbox[4]:bbox[5]]
+
+
+    # resize到目标shape，也就是aim_shape,
+    # （注意，例如，指定x轴，则yz平面resize到aim_shape，但由于yz面可能不是正方形，所以暂时取yz面边长"平均数"计算x轴缩放比例）
+    if aim_shape is not None:
+        if axis == 'coronal'    or axis == 'x' or axis == 'dim0' or axis == 0:
+            mean_lenth = (_scan.shape[1]+_scan.shape[2])/2  # 取均值
+            _scan = zoom(_scan, (aim_shape/ mean_lenth, aim_shape/_scan.shape[1], aim_shape/_scan.shape[2]), order=3) # cubic插值
+            if mask is not None:
+                _mask = zoom(_mask, (aim_shape / mean_lenth, aim_shape / _scan.shape[1], aim_shape / _scan.shape[2]), order=0)  # nearest插值
+        elif axis == 'sagittal' or axis == 'y' or axis == 'dim1' or axis == 1:
+            mean_lenth = (_scan.shape[0]+_scan.shape[2])/2  # 取均值
+            _scan = zoom(_scan, (aim_shape/_scan.shape[0] , aim_shape/mean_lenth, aim_shape/_scan.shape[2]), order=3) # cubic插值
+            if mask is not None:
+                _mask = zoom(_mask, (aim_shape/_scan.shape[0] , aim_shape/mean_lenth, aim_shape/_scan.shape[2]), order=0)  # nearest插值
+        elif axis == 'axial'    or axis == 'z' or axis == 'dim2' or axis == 2:
+            mean_lenth = (_scan.shape[0]+_scan.shape[1])/2  # 取均值
+            _scan = zoom(_scan, (aim_shape/_scan.shape[0] , aim_shape/_scan.shape[1], aim_shape/mean_lenth), order=3) # cubic插值
+            if mask is not None:
+                _mask = zoom(_mask, (aim_shape/_scan.shape[0] , aim_shape/_scan.shape[1], aim_shape/mean_lenth), order=0)  # nearest插值
+
+
+    # 开始分patch，并且保存每个patch所在的index，stride，以备复原 todo
+    patches = []  # 储存patch的list
+    # 首先将目标轴移动到第一个（方便分patch）, 进行分patch，并保存每个patch的信息（以备从patch重构原图）
+    roi_scan_shape = _scan.shape  # 未经过axis调整，axis order和原图一致时的roi的shape
+    # 将要叠加的轴挪到第一个位置
+    if axis == 'coronal' or axis == 'x' or axis == 0:
+        pass  # 已经在第一维，没什么好做的
+    elif axis == 'sagittal' or axis == 'y' or axis == 1:
+        _scan = np.transpose(_scan, (1, 2, 0))
+        if mask is not None:
+            _mask = np.transpose(_mask, (1, 2, 0))
+    elif axis == 'axial' or axis == 'z' or axis == 2:
+        _scan = np.transpose(_scan, (2, 1, 0))
+        if mask is not None:
+            _mask = np.transpose(_mask, (2, 1, 0))
+    else:
+        raise ValueError
+
+
+    # 分patch，patch的data，以及其他shape，index信息保存在patch的类里面，patch.data以及patch.info(结构为字典），之后用pickle打包patch存储即可
+    # 记得将每一个patch的轴还原
+
+    # 先沿着分patch的轴，滑动，滑动的stride（也叫steps）就是参数的stride
+    for i in range(0, _scan.shape[0], stride):
+        # 现在每个i其实就是一个起点，根据这个起点，采样slices个层，间隔位expand_r
+        # 首先采样：这里为什么使用i到i+(slices*expand_r)这个范围，自己好好琢磨下即可（应该是没问题的）
+        _tmp_patch_array = _scan[i:i+(slices*expand_r):expand_r, :, :]  # 放心，就算只取一层，也会是（1，w，h）的shape
+        if mask is not None:
+            _tmp_mask_array = _mask[i:i+(slices*expand_r):expand_r, :, :]
+
+        # 因为ndarray采样越界也不会报错，so需要进一步判断采样出来的array层数是否等于slices，
+        # 如果小于，则证明已经“采到头了”，则break出循环
+        if _tmp_patch_array.shape[0] < slices:
+            break
+        else:  # 如果patch尺寸合格，则储存
+            # 将轴的顺序还原patch
+            if True:
+                if axis == 'coronal'    or axis == 'x' or axis == 0:
+                    pass  # 已经在第一维，没什么好做的
+                elif axis == 'sagittal' or axis == 'y' or axis == 1:
+                    _tmp_patch_array = np.transpose(_tmp_patch_array, (2, 0, 1))  # 从（1，2，0） 还原到（0，1，2）
+                    if mask is not None:
+                        _tmp_mask_array = np.transpose(_tmp_mask_array, (2, 0, 1))
+                elif axis == 'axial'    or axis == 'z' or axis == 2:
+                    _tmp_patch_array = np.transpose(_tmp_patch_array, (2, 1, 0))  # 从（2，1，0） 还原到（0，1，2）
+                    if mask is not None:
+                        _tmp_mask_array = np.transpose(_tmp_mask_array, (2, 1, 0))
+
+            # 储存数据到对象
+            if True:
+                _tmp_patch = patch_tmp()  # 先建个对象储存patch的数据
+                _tmp_patch.data = _tmp_patch_array  # 储存patch图像
+                if mask is not None:
+                    _tmp_patch.mask = _tmp_mask_array
+
+            # 接下来尽可能的保存info，已备还原patch
+            if True:
+                _tmp_patch.info['patch_mode'] = r'_slide_window_one_axis'  # 记录分patch的模式
+                # 记录数据for第一次重构：首先要还原到分patch之前的_scan需要的信息有以下
+                _tmp_patch.info['axis'] = axis
+                _tmp_patch.info['slices'] = slices
+                _tmp_patch.info['expand_r'] = expand_r
+                _tmp_patch.info['index_begin'] = i
+                _tmp_patch.info['_scan.shape'] = roi_scan_shape  # 需要是未经过axis调整（即目标axis提前到第一轴）的shape
+                # 记录数据for第二次重构：之后需要从_scan还原到原图，需要
+                _tmp_patch.info['_scan_bbox'] = bbox  # aim_shape缩放之前的bbox（bbox可以计算出shape）
+                _tmp_patch.info['array3D.shape'] = array3D.shape  # 最原始大图的shape
+                _tmp_patch.info['array3D.spacing'] = spacing  # 最原始大图的spacing
+                _tmp_patch.info['array3D.resample_spacing'] = resample_spacing  # 最原始大图的resample_spacing(如果不是None，则以此为准，此spacing的优先级最高）
+                _tmp_patch.info['array3D.origin'] = origin  # 最原始大图的origin
+                _tmp_patch.info['array3D.transfmat'] = transfmat  # 最原始大图的origin
+                _tmp_patch.info['array3D.axesOrder'] = axesOrder  # 最原始大图的axesOrder，也是_scan、最终patch中data的axesOrder
+
+            # 将对象存入list
+            patches.append(_tmp_patch)
+
+        # 注意，这里我们不从后往前取一个patch，主要原因是我懒得写代码了，（但是这可能会对分割任务有影响）
+        # （因为分割金标准不能随便丢，so 分割任务的stride建议为1， 或 axis_len - slices 能被 stride整除）
+        # so，直接返回patches的liest
+
+    # 把_scan的axis顺序也调整回去
+    if True:
+        if axis == 'coronal' or axis == 'x' or axis == 0:
+            pass  # 已经在第一维，没什么好做的
+        elif axis == 'sagittal' or axis == 'y' or axis == 1:
+            _scan = np.transpose(_scan, (2, 0, 1))  # 从（1，2，0） 还原到（0，1，2）
+        elif axis == 'axial' or axis == 'z' or axis == 2:
+            _scan = np.transpose(_scan, (2, 1, 0))  # 从（2，1，0） 还原到（0，1，2）
+
+    return patches
+
+def slide_window_one_axis_reconstruct(patches):
+    """
+    暂时只做到还原image，ok？（如果想还原mask,再说）
+    ps:
+    重建的时候，需要注意，如果patch是有重叠的，那么重复赋值之后，需要把赋值次数为n的体素，除以n以获得均值
+    我们可以额外建立一个数组（值全部为1的矩阵），作为储存各个体素被赋值次数的矩阵，最后再除以这个矩阵即可
+
+    :param patches_list: patch对象组成的list
+    :return:
+    """
+
+    # 构建个容器
+    img = np.zeros(patches[0].info['_scan.shape'],dtype=np.float32)
+    weight_img = np.zeros(patches[0].info['_scan.shape'],dtype=np.float32)
+
+    # 获取axis
+    axis = patches[0].info['axis']
+
+    # 逐个patch放回咯
+    for patch in patches:
+        i = patch.info['index_begin']
+        slices = patch.info['slices']
+        expand_r = patch.info['expand_r']
+
+        if axis == 'coronal' or axis == 'x' or axis == 0:
+            img[i:i + (slices * expand_r):expand_r, :, :] += patch.data
+            weight_img[i:i + (slices * expand_r):expand_r, :, :] += 1.
+        elif axis == 'sagittal' or axis == 'y' or axis == 1:
+            img[:,i:i + (slices * expand_r):expand_r, :] += patch.data
+            weight_img[:,i:i + (slices * expand_r):expand_r, :] += 1.
+        elif axis == 'axial' or axis == 'z' or axis == 2:
+            img[:,:,i:i + (slices * expand_r):expand_r] += patch.data
+            weight_img[:,:,i:i + (slices * expand_r):expand_r] += 1.
+
+
+    # weight_img初始化为0，记录次数，但是可能会有0的存在，所以要修正0为1，因为0次赋值和1次赋值的weight都应该是1
+    weight_img[weight_img<0.5] = 1.
+
+    # 利用权重修正图片(其实就是把重复赋值的地方给取平均）
+    img_final = img / weight_img
+
+    # 暂时只做到重建_scan，返回
+    return img_final
+
+
+
+
+"""n维度滑动窗分patch"""
+# 参数是3维度参数（必须与array3D的axesOrder对应,一般是'coronal','sagittal','axial'这个顺序），但是可以实现1~3D的滑动窗
+def slide_window_n_axis(array3D, spacing, origin, transfmat, axesOrder, bbox,
+                        slices = [30, 30, 30],
+                        stride = [3, 3, 3],
+                        expand_r = [1, 1, 1],
+                        mask = None,
+                        ex_mode = 'bbox',
+                        ex_voxels = [0, 0, 0],
+                        ex_mms = None,
+                        resample_spacing=None,
+                        aim_shape = [256,256,256]):
+    """
+    这是一个3D滑动窗分patch的操作，可以实现1D、2D、3D的分patch操作
+    :param array3D: 3D 图像
+    :param spacing: 图像的原始spacing，对应[coronal,sagittal,axial]
+    :param origin: 原始图像的realworld原点（sitk读图时会返回）
+    :param transfmat: 原始图像的坐标系基向量（所谓的空间方向向量）
+    :param axesOrder: 3D array的坐标轴的顺序
+    :param resample_spacing: 重采样后的spacing, list
+
+    :param bbox: 肿瘤orROI的bbox（注意是最小外接立方体，但是可能不是正方体，且与坐标系轴平行）
+    :param slices: list 包括3elements，patch的三个维度的尺寸
+    :param stride: list 包括3elements，每次滑动的步长
+    :param expand_r: list 包括3elements，slice间的膨胀因子，1则不膨胀,2 则每隔1层取一层，依此类推
+    :param mask: 如果有分割的图，可一起输入分patch
+    :param ex_mode: 外扩的模式，一个是在最小外界矩阵直接外扩'bbox'，一个是先变成“正方体”再外扩'square'
+    :param ex_voxels: list 包括3elements
+    :param ex_mms: 一个值！！，外扩的尺寸,单位mm（优先级比较高，可以不指定ex_voxels而是指定这个， 当ex_voxels和ex_mms同时存在时，只看ex_mms）
+    :param aim_shape: list 包括3elements
+    :return:
+    """
+
+
+    # 按照ex_mode，选择是否把bbox变成立方体
+    if ex_mode ==  'square':
+        bbox = make_bbox_square(bbox)
+
+    # 计算需要各个轴外扩体素
+    if ex_mms is not None: # 如果有ex_mms，则由ex_mms生成list格式的ex_voxels
+        if resample_spacing is not None:
+            ex_voxels = [ex_mms / i for i in list(resample_spacing)]
+        else:
+            ex_voxels = [ex_mms / i for i in list(spacing)]
+
+    # 外扩体素（注意!!!!，所有轴都外扩）
+    bbox = [bbox[0] - ex_voxels[0], bbox[1] + ex_voxels[0],
+            bbox[2] - ex_voxels[1], bbox[3] + ex_voxels[1],
+            bbox[4] - ex_voxels[2], bbox[5] + ex_voxels[2]]
+
+
+    # bbox取整
+    bbox = [int(i) for i in bbox]
+
+    # 检查是否越界
+    bbox[0], bbox[2], bbox[4] = [np.max([bbox[0], 0]), np.max([bbox[2], 0]), np.max([bbox[4], 0])]
+    bbox[1], bbox[3], bbox[5] = [np.min([bbox[1], array3D.shape[0]]),
+                                 np.min([bbox[3], array3D.shape[1]]),
+                                 np.min([bbox[5], array3D.shape[2]])]
+
+
+
+    # 抠出肿瘤，有mask则一起操作
+    _scan = array3D[bbox[0]:bbox[1], bbox[2]:bbox[3], bbox[4]:bbox[5]]
+    if mask is not None:
+        _mask = mask[bbox[0]:bbox[1], bbox[2]:bbox[3], bbox[4]:bbox[5]]
+
+
+    # resize到目标shape，也就是aim_shape,
+    # （注意，指定x轴，则y、z轴resize到aim_shape，但由于yz面可能不是正方形，所以暂时取yz面边长"平均数"计算x轴缩放比例）
+    if aim_shape is not None:
+        _scan = zoom(_scan, (aim_shape[0]/_scan.shape[0], aim_shape[0]/_scan.shape[1], aim_shape[0]/_scan.shape[2]), order=3) # cubic插值
+        if mask is not None:
+            _mask = zoom(_mask, (aim_shape[0] / _scan.shape[0], aim_shape[0] / _scan.shape[1], aim_shape[0] / _scan.shape[2]), order=0)  # nearest插值
+
+
+
+    # 开始分patch，并且保存每个patch所在的index，stride，以备复原
+    patches = []
+    roi_scan_shape = _scan.shape
+    # 分patch，patch的data，以及其他shape，index信息保存在patch的类里面，patch.data以及patch.info(结构为字典），之后用pickle打包patch存储即可
+    # 记得将每一个patch的轴还原
+
+    # 先沿着分patch的轴，滑动，滑动的stride（也叫steps）就是参数的stride
+    for i in range(0, _scan.shape[0], stride[0]):
+        for j in range(0, _scan.shape[1], stride[1]):
+            for k in range(0, _scan.shape[2], stride[2]):
+                _tmp_patch_array = _scan[i:i + (slices[0] * expand_r[0]):expand_r[0],
+                                         j:j + (slices[1] * expand_r[1]):expand_r[1],
+                                         k:k + (slices[2] * expand_r[2]):expand_r[2]]
+                if mask is not None:
+                    _tmp_mask_array = _mask[i:i + (slices[0] * expand_r[0]):expand_r[0],
+                                            j:j + (slices[1] * expand_r[1]):expand_r[1],
+                                            k:k + (slices[2] * expand_r[2]):expand_r[2]]
+
+                # 因为ndarray采样越界也不会报错，so需要进一步
+                # 判断采样出来的array层数是否等于slices，如果小于则证明已经“采到头了”，则break出循环
+                if (_tmp_patch_array.shape[0] < slices[0] or
+                    _tmp_patch_array.shape[1] < slices[1] or
+                    _tmp_patch_array.shape[2] < slices[2]):
+                    break
+                else:  #如果patch尺寸合格，则储存
+                    # 储存数据到对象
+                    if True:
+                        _tmp_patch = patch_tmp()  # 先建个对象储存patch的数据
+                        _tmp_patch.data = _tmp_patch_array  # 储存patch图像
+                        if mask is not None:
+                            _tmp_patch.mask = _tmp_mask_array
+                    # 接下来尽可能的保存info，已备还原patch
+                    if True:
+                        _tmp_patch.info['patch_mode'] = r'_slide_window_n_axis'  # 记录分patch的模式
+                        # 记录数据：首先要还原到分patch之前的_scan需要的信息有以下
+                        _tmp_patch.info['slices'] = slices  # 是个list
+                        _tmp_patch.info['expand_r'] = expand_r  # 是个list
+                        _tmp_patch.info['index_begin'] = [i, j, k]
+                        _tmp_patch.info['_scan.shape'] = roi_scan_shape  #
+                        # 记录数据：之后需要从_scan还原到原图，需要
+                        _tmp_patch.info['_scan_bbox'] = bbox  # aim_shape缩放之前的bbox（bbox可以计算出shape）
+                        _tmp_patch.info['array3D.shape'] = array3D.shape  # 最原始大图的shape
+                        _tmp_patch.info['array3D.spacing'] = spacing  # 最原始大图的spacing
+                        _tmp_patch.info['array3D.resample_spacing'] = resample_spacing  # 最原始大图的resample_spacing(如果不是None，则以此为准，此spacing的优先级最高）
+                        _tmp_patch.info['array3D.origin'] = origin  # 最原始大图的origin
+                        _tmp_patch.info['array3D.transfmat'] = transfmat  # 最原始大图的origin
+                        _tmp_patch.info['array3D.axesOrder'] = axesOrder  # 最原始大图的axesOrder，也是_scan、最终patch中data的axesOrder
+
+                # 将对象存入list
+                patches.append(_tmp_patch)
+
+        # 注意，这里我们不从后往前取一个patch，主要原因是我懒得写代码了，（但是这可能会对分割任务有影响）
+        # （因为分割金标准不能随便丢，so 分割任务的stride建议为1， 或 axis_len - slices 能被 stride整除）
+        # so，直接返回patches的liest
+
+    return patches
+
+
+def slide_window_n_axis_reconstruct(patches):
+    """
+    暂时只做到还原image，ok？（如果想还原mask,再说，不过应该可以直接用这个）
+    重构的过程：先把所有的patch的值全部叠加到各自的空间位置，之后重复赋值的地方取均值
+    ps:
+    重建的时候，需要注意，如果patch是有重叠的，那么重复赋值之后，需要把赋值次数为n的体素，除以n以获得均值
+    我们可以额外建立一个数组（值全部为1的矩阵），作为储存各个体素被赋值次数的矩阵，最后再除以这个矩阵即可
+    :param patches_list: patch对象组成的list
+    :return:
+    """
+
+    # 构建个容器
+    img = np.zeros(patches[0].info['_scan.shape'],dtype=np.float32)
+    weight_img = np.zeros(patches[0].info['_scan.shape'],dtype=np.float32)
+
+
+    # 逐个patch放回咯
+    for patch in patches:
+        i, j, k = patch.info['index_begin']
+        slices = patch.info['slices']
+        expand_r = patch.info['expand_r']
+        # patch放回原空间位置
+        img[i:i + (slices[0] * expand_r[0]):expand_r[0],
+            j:j + (slices[1] * expand_r[1]):expand_r[1],
+            k:k + (slices[2] * expand_r[2]):expand_r[2]] += patch.data
+        # 记录赋值的位置
+        weight_img[i:i + (slices[0] * expand_r[0]):expand_r[0],
+                   j:j + (slices[1] * expand_r[1]):expand_r[1],
+                   k:k + (slices[2] * expand_r[2]):expand_r[2]] += 1.
+
+
+    # weight_img初始化为0，记录次数，但是可能会有0的存在，所以要修正0为1，因为0次赋值和1次赋值的weight都应该是1
+    weight_img[weight_img < 0.5] = 1.
+
+    # 利用权重修正图片(其实就是把重复赋值的地方给取平均）
+    img_final = img / weight_img  #
+
+    # 暂时只做到重建_scan，返回
+    return img_final
+
+
+def winwill_one_axis(array3D, spacing, origin, transfmat, axesOrder,
+                     bbox, axis, slices=1, stride=1, add_num=1,add_weights='Mean',
+                     mask=None, ex_mode='square', ex_voxels=0,
+                     ex_mms=None, resample_spacing=None,
+                     aim_shape=256):
+    """
+    风车式的分patch，限制：过程中会强制将ROI转换为正方体进行分patch，故细长目标不太适合这个操作
+    windmill 对应的参数 (一般使用这个操作前，不要使用slice_nb_add这个操作，ok？)
+    :param array3D:
+    :param spacing:
+    :param origin:
+    :param transfmat:
+    :param axesOrder:
+    :param bbox:
+    :param axis:
+    :param slices:
+    :param stride:
+    :param add_num:
+    :param add_weights:
+    :param mask:
+    :param ex_mode:'square'，winwill模式下，必须是对正方体进行操作，但是这一步不能保证是正方体（可能bbox会越界）
+    :param ex_voxels:
+    :param ex_mms:
+    :param resample_spacing:
+    :param aim_shape: 一个值，必须有，因为最终会通过resize来保证ROI图像是正方体
+    :return:
+    """
+    raise NotImplementedError
+
+def winwill_one_axis_reconstruct():
+    raise NotImplementedError
+# show3Dslice(np.concatenate([_scan,img],axis=1))
+# show3Dslice(np.concatenate([_scan,img_final],axis=1))
+# show3Dslice(np.concatenate([img,img_final],axis=1))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class patch_tmp():
     """
     patch类，只是作为存放数据的容器
     """
 
     def __init__(self):
-        self.data = None
-        self.mask = None
-        self.info = {}
-
+        self.id = None  # 病人的id
+        self.data = None  # numpy
+        self.mask = None  # numpy
+        self.info = {}   # patch的一些信息，以供还原
 
 
 class wama():
@@ -510,7 +984,7 @@ class wama():
         只支持单肿瘤
         """
         # 可能会用到的一些信息
-        self.id = None
+        self.id = None  # 用来存放病人的id的，字符串形式，如's1','1','patient_X'都可
         # 存储图像的信息
         self.scan = {}  # 字典形式储存数据，如image['CT']=[1,2,3]， 不同模态的图像必须要是配准的！暂时不支持没配准的
         self.spacing = {}  # 字典形式存储数据的,tuple
@@ -1098,465 +1572,6 @@ class wama():
         raise NotImplementedError
 
 
-"""patch的操作"""
-# 滑动窗还原patch的操作极其简单，只需要赋patch予到原始空间位置即可
-# 分patch的操作包括：基于bbox, 外扩一定像素，resize到目标大小，分patch，储存patches
-def slide_window_one_axis(array3D, spacing, origin, transfmat, axesOrder,
-                          bbox, axis, slices=1, stride=1, expand_r=1,
-                          mask=None, ex_mode='bbox', ex_voxels=0,
-                          ex_mms=None, resample_spacing=None,
-                          aim_shape=256):
-    """
-    1D 分patch的操作，即沿着一个axis分patch，返回的patch可以是2D的也可以是3D的
-    :param array3D: 3D 图像 3D array
-    :param spacing: tuple, 图像的原始spacing，对应[coronal,sagittal,axial]
-    :param origin: 原始图像的realworld原点（用sitk读图时会返回的一个变量）
-    :param transfmat: 原始图像的坐标系基向量（所谓的空间方向向量，用sitk读图时会返回的一个变量）
-    :param axesOrder: 3D array的坐标轴的顺序，如['coronal','sagittal','axial']
-    :param resample_spacing: 重采样后的spacing, list，如[0.5,0.5,0.5]
-
-    :param bbox: 肿瘤orROI的bbox,如[1,40,1,40,1,40]（注意是最小外接立方体，但是可能不是正方体，且与坐标系轴平行）
-    :param axis: 分patch沿着的轴, 可以指定为['coronal','sagittal','axial']， or['x','y','z'], or [0,1,2] or ['dim0', 'dim1', dim2']
-    :param slices: 层数，即patch的层厚
-    :param stride: slide window 每次滑动的步长
-    :param expand_r: slice间的膨胀因子，1则不膨胀,2 则每隔1层取一层，3 则每隔2层取一层依此类推
-    :param mask: ndarray，shape和array3D一致，即如果有分割的图，可一起输入进行分patch
-    :param ex_mode: 外扩的模式，一个是在最小外界矩阵直接外扩'bbox'，一个是先变成“正方体”再外扩'square'
-    :param ex_voxels: 外扩的像素数（一个整数）
-    :param ex_mms: 外扩的尺寸,单位mm（优先级比较高，可以不指定ex_voxels而是指定这个， 当ex_voxels和ex_mms同时存在时，只看ex_mms）
-    :param aim_shape:一个整数（默认，强制，输出patch的那个面，是正方形）
-    :return:
-    """
-
-
-    # 按照ex_mode，选择是否把bbox变成立方体
-    if ex_mode == 'bbox':
-        pass
-    elif ex_mode ==  'square':
-        bbox = make_bbox_square(bbox)
-    else:
-        raise ValueError(r'ex_mode shoud be "bbox" or "square"')
-
-
-    # 计算需要各个轴外扩体素
-    ex_voxels = [ex_voxels, ex_voxels, ex_voxels]
-    if ex_mms is not None: # 如果有ex_mms，则由ex_mms重新生成list格式的ex_voxels
-        if resample_spacing is not None:  # 如果经过resampling，则当前spacing是resample_spacing
-            ex_voxels = [ex_mms / i for i in list(resample_spacing)]
-        else:
-            ex_voxels = [ex_mms / i for i in list(spacing)]
-
-    # 外扩体素（注意!!!!，滑动的轴不外扩!!!!）
-    if axis == 'coronal'  or axis == 'x' or axis == 'dim0' or axis == 0:
-        bbox = [bbox[0], bbox[1],
-                bbox[2] - ex_voxels[1], bbox[3] + ex_voxels[1],
-                bbox[4] - ex_voxels[2], bbox[5] + ex_voxels[2]]
-    elif axis == 'sagittal' or axis == 'y' or axis == 'dim1' or axis == 1:
-        bbox = [bbox[0] - ex_voxels[0], bbox[1] + ex_voxels[0],
-                bbox[2], bbox[3],
-                bbox[4] - ex_voxels[2], bbox[5] + ex_voxels[2]]
-    elif axis == 'axial'    or axis == 'z' or axis == 'dim2' or axis == 2:
-        bbox = [bbox[0] - ex_voxels[0], bbox[1] + ex_voxels[0],
-                bbox[2] - ex_voxels[1], bbox[3] + ex_voxels[1],
-                bbox[4], bbox[5]]
-
-    # bbox取整
-    bbox = [int(i) for i in bbox]
-
-    # 检查bbox坐标是否越界
-    bbox[0], bbox[2], bbox[4] = [np.max([bbox[0], 0]), np.max([bbox[2], 0]), np.max([bbox[4], 0])]
-    bbox[1], bbox[3], bbox[5] = [np.min([bbox[1], array3D.shape[0]]),
-                                 np.min([bbox[3], array3D.shape[1]]),
-                                 np.min([bbox[5], array3D.shape[2]])]
-
-
-
-    # 抠出肿瘤，有mask则一起操作
-    _scan = array3D[bbox[0]:bbox[1], bbox[2]:bbox[3], bbox[4]:bbox[5]]
-    if mask is not None:
-        _mask = mask[bbox[0]:bbox[1], bbox[2]:bbox[3], bbox[4]:bbox[5]]
-
-
-    # resize到目标shape，也就是aim_shape,
-    # （注意，例如，指定x轴，则yz平面resize到aim_shape，但由于yz面可能不是正方形，所以暂时取yz面边长"平均数"计算x轴缩放比例）
-    if aim_shape is not None:
-        if axis == 'coronal'    or axis == 'x' or axis == 'dim0' or axis == 0:
-            mean_lenth = (_scan.shape[1]+_scan.shape[2])/2  # 取均值
-            _scan = zoom(_scan, (aim_shape/ mean_lenth, aim_shape/_scan.shape[1], aim_shape/_scan.shape[2]), order=3) # cubic插值
-            if mask is not None:
-                _mask = zoom(_mask, (aim_shape / mean_lenth, aim_shape / _scan.shape[1], aim_shape / _scan.shape[2]), order=0)  # nearest插值
-        elif axis == 'sagittal' or axis == 'y' or axis == 'dim1' or axis == 1:
-            mean_lenth = (_scan.shape[0]+_scan.shape[2])/2  # 取均值
-            _scan = zoom(_scan, (aim_shape/_scan.shape[0] , aim_shape/mean_lenth, aim_shape/_scan.shape[2]), order=3) # cubic插值
-            if mask is not None:
-                _mask = zoom(_mask, (aim_shape/_scan.shape[0] , aim_shape/mean_lenth, aim_shape/_scan.shape[2]), order=0)  # nearest插值
-        elif axis == 'axial'    or axis == 'z' or axis == 'dim2' or axis == 2:
-            mean_lenth = (_scan.shape[0]+_scan.shape[1])/2  # 取均值
-            _scan = zoom(_scan, (aim_shape/_scan.shape[0] , aim_shape/_scan.shape[1], aim_shape/mean_lenth), order=3) # cubic插值
-            if mask is not None:
-                _mask = zoom(_mask, (aim_shape/_scan.shape[0] , aim_shape/_scan.shape[1], aim_shape/mean_lenth), order=0)  # nearest插值
-
-
-    # 开始分patch，并且保存每个patch所在的index，stride，以备复原 todo
-    patches = []  # 储存patch的list
-    # 首先将目标轴移动到第一个（方便分patch）, 进行分patch，并保存每个patch的信息（以备从patch重构原图）
-    roi_scan_shape = _scan.shape  # 未经过axis调整，axis order和原图一致时的roi的shape
-    # 将要叠加的轴挪到第一个位置
-    if axis == 'coronal' or axis == 'x' or axis == 0:
-        pass  # 已经在第一维，没什么好做的
-    elif axis == 'sagittal' or axis == 'y' or axis == 1:
-        _scan = np.transpose(_scan, (1, 2, 0))
-        if mask is not None:
-            _mask = np.transpose(_mask, (1, 2, 0))
-    elif axis == 'axial' or axis == 'z' or axis == 2:
-        _scan = np.transpose(_scan, (2, 1, 0))
-        if mask is not None:
-            _mask = np.transpose(_mask, (2, 1, 0))
-    else:
-        raise ValueError
-
-
-    # 分patch，patch的data，以及其他shape，index信息保存在patch的类里面，patch.data以及patch.info(结构为字典），之后用pickle打包patch存储即可
-    # 记得将每一个patch的轴还原
-
-    # 先沿着分patch的轴，滑动，滑动的stride（也叫steps）就是参数的stride
-    for i in range(0, _scan.shape[0], stride):
-        # 现在每个i其实就是一个起点，根据这个起点，采样slices个层，间隔位expand_r
-        # 首先采样：这里为什么使用i到i+(slices*expand_r)这个范围，自己好好琢磨下即可（应该是没问题的）
-        _tmp_patch_array = _scan[i:i+(slices*expand_r):expand_r, :, :]  # 放心，就算只取一层，也会是（1，w，h）的shape
-        if mask is not None:
-            _tmp_mask_array = _mask[i:i+(slices*expand_r):expand_r, :, :]
-
-        # 因为ndarray采样越界也不会报错，so需要进一步判断采样出来的array层数是否等于slices，
-        # 如果小于，则证明已经“采到头了”，则break出循环
-        if _tmp_patch_array.shape[0] < slices:
-            break
-        else:  # 如果patch尺寸合格，则储存
-            # 将轴的顺序还原patch
-            if True:
-                if axis == 'coronal'    or axis == 'x' or axis == 0:
-                    pass  # 已经在第一维，没什么好做的
-                elif axis == 'sagittal' or axis == 'y' or axis == 1:
-                    _tmp_patch_array = np.transpose(_tmp_patch_array, (2, 0, 1))  # 从（1，2，0） 还原到（0，1，2）
-                    if mask is not None:
-                        _tmp_mask_array = np.transpose(_tmp_mask_array, (2, 0, 1))
-                elif axis == 'axial'    or axis == 'z' or axis == 2:
-                    _tmp_patch_array = np.transpose(_tmp_patch_array, (2, 1, 0))  # 从（2，1，0） 还原到（0，1，2）
-                    if mask is not None:
-                        _tmp_mask_array = np.transpose(_tmp_mask_array, (2, 1, 0))
-
-            # 储存数据到对象
-            if True:
-                _tmp_patch = patch_tmp()  # 先建个对象储存patch的数据
-                _tmp_patch.data = _tmp_patch_array  # 储存patch图像
-                if mask is not None:
-                    _tmp_patch.mask = _tmp_mask_array
-
-            # 接下来尽可能的保存info，已备还原patch
-            if True:
-                _tmp_patch.info['patch_mode'] = r'_slide_window_one_axis'  # 记录分patch的模式
-                # 记录数据for第一次重构：首先要还原到分patch之前的_scan需要的信息有以下
-                _tmp_patch.info['axis'] = axis
-                _tmp_patch.info['slices'] = slices
-                _tmp_patch.info['expand_r'] = expand_r
-                _tmp_patch.info['index_begin'] = i
-                _tmp_patch.info['_scan.shape'] = roi_scan_shape  # 需要是未经过axis调整（即目标axis提前到第一轴）的shape
-                # 记录数据for第二次重构：之后需要从_scan还原到原图，需要
-                _tmp_patch.info['_scan_bbox'] = bbox  # aim_shape缩放之前的bbox（bbox可以计算出shape）
-                _tmp_patch.info['array3D.shape'] = array3D.shape  # 最原始大图的shape
-                _tmp_patch.info['array3D.spacing'] = spacing  # 最原始大图的spacing
-                _tmp_patch.info['array3D.resample_spacing'] = resample_spacing  # 最原始大图的resample_spacing(如果不是None，则以此为准，此spacing的优先级最高）
-                _tmp_patch.info['array3D.origin'] = origin  # 最原始大图的origin
-                _tmp_patch.info['array3D.transfmat'] = transfmat  # 最原始大图的origin
-                _tmp_patch.info['array3D.axesOrder'] = axesOrder  # 最原始大图的axesOrder，也是_scan、最终patch中data的axesOrder
-
-            # 将对象存入list
-            patches.append(_tmp_patch)
-
-        # 注意，这里我们不从后往前取一个patch，主要原因是我懒得写代码了，（但是这可能会对分割任务有影响）
-        # （因为分割金标准不能随便丢，so 分割任务的stride建议为1， 或 axis_len - slices 能被 stride整除）
-        # so，直接返回patches的liest
-
-    # 把_scan的axis顺序也调整回去
-    if True:
-        if axis == 'coronal' or axis == 'x' or axis == 0:
-            pass  # 已经在第一维，没什么好做的
-        elif axis == 'sagittal' or axis == 'y' or axis == 1:
-            _scan = np.transpose(_scan, (2, 0, 1))  # 从（1，2，0） 还原到（0，1，2）
-        elif axis == 'axial' or axis == 'z' or axis == 2:
-            _scan = np.transpose(_scan, (2, 1, 0))  # 从（2，1，0） 还原到（0，1，2）
-
-    return patches
-
-def slide_window_one_axis_reconstruct(patches):
-    """
-    暂时只做到还原image，ok？（如果想还原mask,再说）
-    ps:
-    重建的时候，需要注意，如果patch是有重叠的，那么重复赋值之后，需要把赋值次数为n的体素，除以n以获得均值
-    我们可以额外建立一个数组（值全部为1的矩阵），作为储存各个体素被赋值次数的矩阵，最后再除以这个矩阵即可
-
-    :param patches_list: patch对象组成的list
-    :return:
-    """
-
-    # 构建个容器
-    img = np.zeros(patches[0].info['_scan.shape'],dtype=np.float32)
-    weight_img = np.zeros(patches[0].info['_scan.shape'],dtype=np.float32)
-
-    # 获取axis
-    axis = patches[0].info['axis']
-
-    # 逐个patch放回咯
-    for patch in patches:
-        i = patch.info['index_begin']
-        slices = patch.info['slices']
-        expand_r = patch.info['expand_r']
-
-        if axis == 'coronal' or axis == 'x' or axis == 0:
-            img[i:i + (slices * expand_r):expand_r, :, :] += patch.data
-            weight_img[i:i + (slices * expand_r):expand_r, :, :] += 1.
-        elif axis == 'sagittal' or axis == 'y' or axis == 1:
-            img[:,i:i + (slices * expand_r):expand_r, :] += patch.data
-            weight_img[:,i:i + (slices * expand_r):expand_r, :] += 1.
-        elif axis == 'axial' or axis == 'z' or axis == 2:
-            img[:,:,i:i + (slices * expand_r):expand_r] += patch.data
-            weight_img[:,:,i:i + (slices * expand_r):expand_r] += 1.
-
-
-    # weight_img初始化为0，记录次数，但是可能会有0的存在，所以要修正0为1，因为0次赋值和1次赋值的weight都应该是1
-    weight_img[weight_img<0.5] = 1.
-
-    # 利用权重修正图片(其实就是把重复赋值的地方给取平均）
-    img_final = img / weight_img
-
-    # 暂时只做到重建_scan，返回
-    return img_final
-
-
-# 参数是3维度参数（必须与array3D的axesOrder对应,一般是'coronal','sagittal','axial'这个顺序），但是可以实现1~3D的滑动窗
-def slide_window_n_axis(array3D, spacing, origin, transfmat, axesOrder, bbox,
-                        slices = [30, 30, 30],
-                        stride = [3, 3, 3],
-                        expand_r = [1, 1, 1],
-                        mask = None,
-                        ex_mode = 'bbox',
-                        ex_voxels = [0, 0, 0],
-                        ex_mms = None,
-                        resample_spacing=None,
-                        aim_shape = [256,256,256]):
-    """
-    这是一个3D滑动窗分patch的操作，可以实现1D、2D、3D的分patch操作
-    :param array3D: 3D 图像
-    :param spacing: 图像的原始spacing，对应[coronal,sagittal,axial]
-    :param origin: 原始图像的realworld原点（sitk读图时会返回）
-    :param transfmat: 原始图像的坐标系基向量（所谓的空间方向向量）
-    :param axesOrder: 3D array的坐标轴的顺序
-    :param resample_spacing: 重采样后的spacing, list
-
-    :param bbox: 肿瘤orROI的bbox（注意是最小外接立方体，但是可能不是正方体，且与坐标系轴平行）
-    :param slices: list 包括3elements，patch的三个维度的尺寸
-    :param stride: list 包括3elements，每次滑动的步长
-    :param expand_r: list 包括3elements，slice间的膨胀因子，1则不膨胀,2 则每隔1层取一层，依此类推
-    :param mask: 如果有分割的图，可一起输入分patch
-    :param ex_mode: 外扩的模式，一个是在最小外界矩阵直接外扩'bbox'，一个是先变成“正方体”再外扩'square'
-    :param ex_voxels: list 包括3elements
-    :param ex_mms: 一个值！！，外扩的尺寸,单位mm（优先级比较高，可以不指定ex_voxels而是指定这个， 当ex_voxels和ex_mms同时存在时，只看ex_mms）
-    :param aim_shape: list 包括3elements
-    :return:
-    """
-
-
-    # 按照ex_mode，选择是否把bbox变成立方体
-    if ex_mode ==  'square':
-        bbox = make_bbox_square(bbox)
-
-    # 计算需要各个轴外扩体素
-    if ex_mms is not None: # 如果有ex_mms，则由ex_mms生成list格式的ex_voxels
-        if resample_spacing is not None:
-            ex_voxels = [ex_mms / i for i in list(resample_spacing)]
-        else:
-            ex_voxels = [ex_mms / i for i in list(spacing)]
-
-    # 外扩体素（注意!!!!，所有轴都外扩）
-    bbox = [bbox[0] - ex_voxels[0], bbox[1] + ex_voxels[0],
-            bbox[2] - ex_voxels[1], bbox[3] + ex_voxels[1],
-            bbox[4] - ex_voxels[2], bbox[5] + ex_voxels[2]]
-
-
-    # bbox取整
-    bbox = [int(i) for i in bbox]
-
-    # 检查是否越界
-    bbox[0], bbox[2], bbox[4] = [np.max([bbox[0], 0]), np.max([bbox[2], 0]), np.max([bbox[4], 0])]
-    bbox[1], bbox[3], bbox[5] = [np.min([bbox[1], array3D.shape[0]]),
-                                 np.min([bbox[3], array3D.shape[1]]),
-                                 np.min([bbox[5], array3D.shape[2]])]
-
-
-
-    # 抠出肿瘤，有mask则一起操作
-    _scan = array3D[bbox[0]:bbox[1], bbox[2]:bbox[3], bbox[4]:bbox[5]]
-    if mask is not None:
-        _mask = mask[bbox[0]:bbox[1], bbox[2]:bbox[3], bbox[4]:bbox[5]]
-
-
-    # resize到目标shape，也就是aim_shape,
-    # （注意，指定x轴，则y、z轴resize到aim_shape，但由于yz面可能不是正方形，所以暂时取yz面边长"平均数"计算x轴缩放比例）
-    if aim_shape is not None:
-        _scan = zoom(_scan, (aim_shape[0]/_scan.shape[0], aim_shape[0]/_scan.shape[1], aim_shape[0]/_scan.shape[2]), order=3) # cubic插值
-        if mask is not None:
-            _mask = zoom(_mask, (aim_shape[0] / _scan.shape[0], aim_shape[0] / _scan.shape[1], aim_shape[0] / _scan.shape[2]), order=0)  # nearest插值
-
-
-
-    # 开始分patch，并且保存每个patch所在的index，stride，以备复原
-    patches = []
-    roi_scan_shape = _scan.shape
-    # 分patch，patch的data，以及其他shape，index信息保存在patch的类里面，patch.data以及patch.info(结构为字典），之后用pickle打包patch存储即可
-    # 记得将每一个patch的轴还原
-
-    # 先沿着分patch的轴，滑动，滑动的stride（也叫steps）就是参数的stride
-    for i in range(0, _scan.shape[0], stride[0]):
-        for j in range(0, _scan.shape[1], stride[1]):
-            for k in range(0, _scan.shape[2], stride[2]):
-                _tmp_patch_array = _scan[i:i + (slices[0] * expand_r[0]):expand_r[0],
-                                         j:j + (slices[1] * expand_r[1]):expand_r[1],
-                                         k:k + (slices[2] * expand_r[2]):expand_r[2]]
-                if mask is not None:
-                    _tmp_mask_array = _mask[i:i + (slices[0] * expand_r[0]):expand_r[0],
-                                            j:j + (slices[1] * expand_r[1]):expand_r[1],
-                                            k:k + (slices[2] * expand_r[2]):expand_r[2]]
-
-                # 因为ndarray采样越界也不会报错，so需要进一步
-                # 判断采样出来的array层数是否等于slices，如果小于则证明已经“采到头了”，则break出循环
-                if (_tmp_patch_array.shape[0] < slices[0] or
-                    _tmp_patch_array.shape[1] < slices[1] or
-                    _tmp_patch_array.shape[2] < slices[2]):
-                    break
-                else:  #如果patch尺寸合格，则储存
-                    # 储存数据到对象
-                    if True:
-                        _tmp_patch = patch_tmp()  # 先建个对象储存patch的数据
-                        _tmp_patch.data = _tmp_patch_array  # 储存patch图像
-                        if mask is not None:
-                            _tmp_patch.mask = _tmp_mask_array
-                    # 接下来尽可能的保存info，已备还原patch
-                    if True:
-                        _tmp_patch.info['patch_mode'] = r'_slide_window_n_axis'  # 记录分patch的模式
-                        # 记录数据：首先要还原到分patch之前的_scan需要的信息有以下
-                        _tmp_patch.info['slices'] = slices  # 是个list
-                        _tmp_patch.info['expand_r'] = expand_r  # 是个list
-                        _tmp_patch.info['index_begin'] = [i, j, k]
-                        _tmp_patch.info['_scan.shape'] = roi_scan_shape  #
-                        # 记录数据：之后需要从_scan还原到原图，需要
-                        _tmp_patch.info['_scan_bbox'] = bbox  # aim_shape缩放之前的bbox（bbox可以计算出shape）
-                        _tmp_patch.info['array3D.shape'] = array3D.shape  # 最原始大图的shape
-                        _tmp_patch.info['array3D.spacing'] = spacing  # 最原始大图的spacing
-                        _tmp_patch.info['array3D.resample_spacing'] = resample_spacing  # 最原始大图的resample_spacing(如果不是None，则以此为准，此spacing的优先级最高）
-                        _tmp_patch.info['array3D.origin'] = origin  # 最原始大图的origin
-                        _tmp_patch.info['array3D.transfmat'] = transfmat  # 最原始大图的origin
-                        _tmp_patch.info['array3D.axesOrder'] = axesOrder  # 最原始大图的axesOrder，也是_scan、最终patch中data的axesOrder
-
-                # 将对象存入list
-                patches.append(_tmp_patch)
-
-        # 注意，这里我们不从后往前取一个patch，主要原因是我懒得写代码了，（但是这可能会对分割任务有影响）
-        # （因为分割金标准不能随便丢，so 分割任务的stride建议为1， 或 axis_len - slices 能被 stride整除）
-        # so，直接返回patches的liest
-
-    return patches
-
-
-def slide_window_n_axis_reconstruct(patches):
-    """
-    暂时只做到还原image，ok？（如果想还原mask,再说，不过应该可以直接用这个）
-    重构的过程：先把所有的patch的值全部叠加到各自的空间位置，之后重复赋值的地方取均值
-    ps:
-    重建的时候，需要注意，如果patch是有重叠的，那么重复赋值之后，需要把赋值次数为n的体素，除以n以获得均值
-    我们可以额外建立一个数组（值全部为1的矩阵），作为储存各个体素被赋值次数的矩阵，最后再除以这个矩阵即可
-    :param patches_list: patch对象组成的list
-    :return:
-    """
-
-    # 构建个容器
-    img = np.zeros(patches[0].info['_scan.shape'],dtype=np.float32)
-    weight_img = np.zeros(patches[0].info['_scan.shape'],dtype=np.float32)
-
-
-    # 逐个patch放回咯
-    for patch in patches:
-        i, j, k = patch.info['index_begin']
-        slices = patch.info['slices']
-        expand_r = patch.info['expand_r']
-        # patch放回原空间位置
-        img[i:i + (slices[0] * expand_r[0]):expand_r[0],
-            j:j + (slices[1] * expand_r[1]):expand_r[1],
-            k:k + (slices[2] * expand_r[2]):expand_r[2]] += patch.data
-        # 记录赋值的位置
-        weight_img[i:i + (slices[0] * expand_r[0]):expand_r[0],
-                   j:j + (slices[1] * expand_r[1]):expand_r[1],
-                   k:k + (slices[2] * expand_r[2]):expand_r[2]] += 1.
-
-
-    # weight_img初始化为0，记录次数，但是可能会有0的存在，所以要修正0为1，因为0次赋值和1次赋值的weight都应该是1
-    weight_img[weight_img < 0.5] = 1.
-
-    # 利用权重修正图片(其实就是把重复赋值的地方给取平均）
-    img_final = img / weight_img  #
-
-    # 暂时只做到重建_scan，返回
-    return img_final
-
-
-def winwill_one_axis(array3D, spacing, origin, transfmat, axesOrder,
-                     bbox, axis, slices=1, stride=1, add_num=1,add_weights='Mean',
-                     mask=None, ex_mode='square', ex_voxels=0,
-                     ex_mms=None, resample_spacing=None,
-                     aim_shape=256):
-    """
-    风车式的分patch，限制：过程中会强制将ROI转换为正方体进行分patch，故细长目标不太适合这个操作
-    windmill 对应的参数 (一般使用这个操作前，不要使用slice_nb_add这个操作，ok？)
-    :param array3D:
-    :param spacing:
-    :param origin:
-    :param transfmat:
-    :param axesOrder:
-    :param bbox:
-    :param axis:
-    :param slices:
-    :param stride:
-    :param add_num:
-    :param add_weights:
-    :param mask:
-    :param ex_mode:'square'，winwill模式下，必须是对正方体进行操作，但是这一步不能保证是正方体（可能bbox会越界）
-    :param ex_voxels:
-    :param ex_mms:
-    :param resample_spacing:
-    :param aim_shape: 一个值，必须有，因为最终会通过resize来保证ROI图像是正方体
-    :return:
-    """
-    raise NotImplementedError
-
-def winwill_one_axis_reconstruct():
-    raise NotImplementedError
-# show3Dslice(np.concatenate([_scan,img],axis=1))
-# show3Dslice(np.concatenate([_scan,img_final],axis=1))
-# show3Dslice(np.concatenate([img,img_final],axis=1))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1596,7 +1611,6 @@ def winwill_one_axis_reconstruct():
 # 还原可能会用到的操作
 #     a = np.array([0,0,0,0,0,0,0,0,0])
 #     a[1:10:2] = np.array([1,2,3,4])
-
 
 
 

@@ -1,2 +1,6 @@
 mayavi
 batchgenerators
+imgaug
+torch
+torchvision
+PIL
