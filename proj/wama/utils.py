@@ -42,7 +42,7 @@ def load_from_pkl(load_path):
 
 
 
-def resize3D(img, aimsize, order = 2):
+def resize3D(img, aimsize, order = 3):
     """
 
     :param img: 3D array
@@ -238,7 +238,7 @@ def readIMG(filename):
     scan = sitk.GetArrayFromImage(itkimage) #3D image, 对应的axis[axial,coronal,sagittal], 我们这里当作[z，y，x]
     scan = np.transpose(scan, (1,2,0))     # 改变axis，对应的axis[coronal,sagittal,axial]，即[y，x，z]
     # 读取图像信息
-    spacing = itkimage.GetSpacing()        #voxelsize，对应的axis[sagittal,coronal,axial]，即[x, y, z] ？？？ 有待确认
+    spacing = itkimage.GetSpacing()        #voxelsize，对应的axis[sagittal,coronal,axial]，即[x, y, z]  已确认
     origin = itkimage.GetOrigin() #world coordinates of origin
     transfmat = itkimage.GetDirection() #3D rotation matrix
     axesOrder = ['coronal', 'sagittal', 'axial']  # 调整顺序可以直接axesOrder = [axesOrder[0],axesOrder[2],axesOrder[1]]
@@ -287,8 +287,16 @@ class VisError(Error):
 
     def __init__(self, message):
         self.message = message
+class FormatError(Error):
+    """Exception raised for errors in the input.
 
+    Attributes:
+        expression -- input expression in which the error occurred
+        message -- explanation of the error
+    """
 
+    def __init__(self, message):
+        self.message = message
 
 
 def gaussian_filter(size, sigma = 10):
@@ -484,7 +492,7 @@ def slice_neibor_add_one_dim(scan,  axis, add_num, add_weights, g_sigma):
     return tmp_array
 
 
-
+# 列表去重
 def list_unique(lis):
     """
     list去重复元素
@@ -598,8 +606,8 @@ def slide_window_one_axis(array3D, spacing, origin, transfmat, axesOrder,
 
     # 开始分patch，并且保存每个patch所在的index，stride，以备复原 todo
     patches = []  # 储存patch的list
-    # 首先将目标轴移动到第一个（方便分patch）, 进行分patch，并保存每个patch的信息（以备从patch重构原图）
     roi_scan_shape = _scan.shape  # 未经过axis调整，axis order和原图一致时的roi的shape
+    # 首先将目标轴移动到第一个（方便分patch）, 进行分patch，并保存每个patch的信息（以备从patch重构原图）
     # 将要叠加的轴挪到第一个位置
     if axis == 'coronal' or axis == 'x' or axis == 0:
         pass  # 已经在第一维，没什么好做的
@@ -763,7 +771,7 @@ def slide_window_n_axis(array3D, spacing, origin, transfmat, axesOrder, bbox,
     :param ex_mode: 外扩的模式，一个是在最小外界矩阵直接外扩'bbox'，一个是先变成“正方体”再外扩'square'
     :param ex_voxels: list 包括3elements
     :param ex_mms: 一个值！！，外扩的尺寸,单位mm（优先级比较高，可以不指定ex_voxels而是指定这个， 当ex_voxels和ex_mms同时存在时，只看ex_mms）
-    :param aim_shape: list 包括3elements
+    :param aim_shape: [256,256,256], 即list 包括3elements
     :return:
     """
 
@@ -805,9 +813,9 @@ def slide_window_n_axis(array3D, spacing, origin, transfmat, axesOrder, bbox,
     # resize到目标shape，也就是aim_shape,
     # （注意，指定x轴，则y、z轴resize到aim_shape，但由于yz面可能不是正方形，所以暂时取yz面边长"平均数"计算x轴缩放比例）
     if aim_shape is not None:
-        _scan = zoom(_scan, (aim_shape[0]/_scan.shape[0], aim_shape[0]/_scan.shape[1], aim_shape[0]/_scan.shape[2]), order=3) # cubic插值
+        _scan = resize3D(_scan, aimsize=aim_shape,order=3) # cubic插值
         if mask is not None:
-            _mask = zoom(_mask, (aim_shape[0] / _scan.shape[0], aim_shape[0] / _scan.shape[1], aim_shape[0] / _scan.shape[2]), order=0)  # nearest插值
+            _mask = resize3D(_mask, aimsize=aim_shape,order=0) # nearest插值
 
 
 
@@ -862,10 +870,9 @@ def slide_window_n_axis(array3D, spacing, origin, transfmat, axesOrder, bbox,
                 # 将对象存入list
                 patches.append(_tmp_patch)
 
-        # 注意，这里我们不从后往前取一个patch，主要原因是我懒得写代码了，（但是这可能会对分割任务有影响）
+        # 注意，这里我们不'从后往前'取一个patch，主要原因是我懒得写代码了，（但是这可能会对分割任务有影响）
         # （因为分割金标准不能随便丢，so 分割任务的stride建议为1， 或 axis_len - slices 能被 stride整除）
         # so，直接返回patches的liest
-
     return patches
 
 
@@ -1001,11 +1008,9 @@ class wama():
 
         # 分patch的操作，在外面进行，反正只要最后可以还原就行了
         # 储存分patch的信息（要考虑分patch出现2D和3D的情况）,分patch的时候记得演示分patch的过程
-        self.is_patched = False # 是否进行了分patch的操作  （每次添加了新的数据、模态、mask，都需要将这个设置为False，之后重新分patch）
-        self.patch_mode = None  # 分patch的模式，暂时包括：滑动窗slideWin，风车windmill，不同模式对应不同的参数
-        self.patch_config = {}  # 分patch的详细参数
-        self.patch_num = None   # patch的数量
-        self.patch = []  # 直接储存patch到list
+        # self.is_patched = False # 是否进行了分patch的操作  （每次添加了新的数据、模态、mask，都需要将这个设置为False，之后重新分patch）
+        # self.patch_num = {}   # patch的数量
+        self.patches = {}  # 直接储存patch到list
 
 
     """从NIFTI加载数据系列"""
@@ -1033,6 +1038,8 @@ class wama():
             print('img_shape:',self.scan[img_type].shape)
             print('spacing',self.spacing[img_type])
             print('axesOrder',self.axesOrder[img_type])
+
+        self.resample_spacing[img_type] = None  # 初始化为None
 
     def appendSementicMaskFromNifti(self, img_type, mask_path):
         if img_type not in self.scan.keys():
@@ -1075,11 +1082,11 @@ class wama():
         return deepcopy(self.sementic_mask[img_type])
 
     # 获取bbox内的图像
-    def getImagefromBbox(self, img_type, ex_voxels=0, ex_mms=None, ex_mode='bbox', aim_shape=None):
+    def getImagefromBbox(self, img_type, ex_voxels=[0,0,0], ex_mms=None, ex_mode='bbox', aim_shape=None):
         """
         先用mask和原图点乘，之后外扩一定体素的bbox取出来（注意，各个维度外扩的尺寸是固定的，暂时）,
         :param img_type:
-        :param ex_voxels: 一个值！不要乱搞乱赋值，ex_voxels = 20 这样子
+        :param ex_voxels: 三个值！不要乱搞乱赋值，ex_voxels = [20,20,20] 的样子
         :param ex_mms: 指定外扩的尺寸(优先级最高，一旦有此参数，忽略ex_voxels）
         :param ex_mode:'bbox' or 'square', bbox则直接在bbox上外扩，square则先变成正方体，再外扩(注意，由于外扩后可能index越界，所以不一定是正方体）
         :param aim_shape: e.p. [256, 256, 256]
@@ -1102,7 +1109,7 @@ class wama():
             print('make_bbox_square')
 
         # 计算需要各个轴外扩体素
-        ex_voxels = [ex_voxels, ex_voxels, ex_voxels]
+        # ex_voxels = [ex_voxels, ex_voxels, ex_voxels]
         if ex_mms is not None:  # 如果有ex_mms，则由ex_mms生成list格式的ex_voxels
             if self.is_resample(img_type):
                 ex_voxels = [ex_mms / i for i in list(self.resample_spacing[img_type])]
@@ -1128,16 +1135,16 @@ class wama():
 
         # 如果有aim_shape,则返回resize后的
         if aim_shape is not None:
-            roi_img = resize3D(roi_img, aim_shape, order=0)
+            roi_img = resize3D(roi_img, aim_shape, order=3)
 
         return roi_img
 
     # 获取mask内的图像
-    def getImagefromMask(self, img_type, ex_voxels=0, ex_mms=None, ex_mode ='bbox', aim_shape = None):
+    def getImagefromMask(self, img_type, ex_voxels=[0,0,0], ex_mms=None, ex_mode ='bbox', aim_shape = None):
         """
         先用mask和原图点乘，之后外扩一定体素的bbox取出来（注意，各个维度外扩的尺寸是固定的，暂时）,
         :param img_type:
-        :param ex_voxels: 一个值！不要乱搞乱赋值，ex_voxels = 20 这样子
+        :param ex_voxels: 3个值！不要乱搞乱赋值，ex_voxels = [20,20,20]  这样子
         :param ex_mms: 指定外扩的尺寸(优先级最高，一旦有此参数，忽略ex_voxels）
         :param ex_mode:'bbox' or 'square', bbox则直接在bbox上外扩，square则先变成正方体，再外扩(注意，由于外扩后可能index越界，所以不一定是正方体）
         :param aim_shape: e.p. [256, 256, 256]
@@ -1160,7 +1167,7 @@ class wama():
             print('make_bbox_square')
 
         # 计算需要各个轴外扩体素
-        ex_voxels = [ex_voxels, ex_voxels, ex_voxels]
+        # ex_voxels = [ex_voxels, ex_voxels, ex_voxels]
         if ex_mms is not None:  # 如果有ex_mms，则由ex_mms生成list格式的ex_voxels
             if self.is_resample(img_type):
                 ex_voxels = [ex_mms / i for i in list(self.resample_spacing[img_type])]
@@ -1186,17 +1193,17 @@ class wama():
 
         # 如果有aim_shape,则返回resize后的
         if aim_shape is not None:
-            roi_img = resize3D(roi_img, aim_shape, order=0)
+            roi_img = resize3D(roi_img, aim_shape, order=3)
 
         return roi_img
 
     # 获取bbox内的mask
-    def getMaskfromBbox(self, img_type, ex_voxels=0, ex_mms=None, ex_mode='bbox', aim_shape=None):
+    def getMaskfromBbox(self, img_type, ex_voxels=[0,0,0], ex_mms=None, ex_mode='bbox', aim_shape=None):
         """
-        先用mask和原图点乘，之后外扩一定体素的bbox取出来（注意，各个维度外扩的尺寸是固定的，暂时）,
+        外扩一定体素的bbox取出来,
         :param img_type:
-        :param ex_voxels: 一个值！不要乱搞乱赋值，ex_voxels = 20 这样子
-        :param ex_mms: 指定外扩的尺寸(优先级最高，一旦有此参数，忽略ex_voxels）
+        :param ex_voxels: 3个值！不要乱搞乱赋值，ex_voxels = [20,20,20] 这样子
+        :param ex_mms: 1个值，指定外扩的尺寸(优先级最高，一旦有此参数，忽略ex_voxels）
         :param ex_mode:'bbox' or 'square', bbox则直接在bbox上外扩，square则先变成正方体，再外扩(注意，由于外扩后可能index越界，所以不一定是正方体）
         :param aim_shape: e.p. [256, 256, 256]
         :return: array of Mask_ROI
@@ -1218,7 +1225,7 @@ class wama():
             print('make_bbox_square')
 
         # 计算需要各个轴外扩体素
-        ex_voxels = [ex_voxels, ex_voxels, ex_voxels]
+        # ex_voxels = [ex_voxels, ex_voxels, ex_voxels]
         if ex_mms is not None:  # 如果有ex_mms，则由ex_mms生成list格式的ex_voxels
             if self.is_resample(img_type):
                 ex_voxels = [ex_mms / i for i in list(self.resample_spacing[img_type])]
@@ -1249,7 +1256,7 @@ class wama():
         return roi_img
 
 
-    #
+    # 获取bbox（坐标，前提是已经有bbox或者mask）
     def getBbox(self, img_type):
         # 首先检查是不是有bbox(有bbox必定有mask和img）
         if img_type not in self.bbox.keys():
@@ -1261,9 +1268,19 @@ class wama():
         return bbox
 
     # """从Array加载数据系列"""
-    # def appendImageFromArray(self, img_type ,img_array, voxel_size):
+    # def appendImageFromArray(self, img_type ,scan, spacing, origin, transfmat, axesOrder):
+    #     """
     #
-    #
+    #     :param img_type: 例如'CT'
+    #     :param scan: ndarray，需要时3D array，axis需要和spacing一致
+    #     :param spacing:
+    #     :param origin:
+    #     :param transfmat:
+    #     :param axesOrder: 如[coronal,sagittal,axial]，必须和scan、spacing、transfmat的axis一致
+    #     :return:
+    #     """
+
+
     # def appendSementicMaskFromArray(self, img_type, mask_path):
     #     self.shape_check()
     #
@@ -1287,7 +1304,7 @@ class wama():
         if mayavi_exist_flag:
             if show_type == 'volume':
                 show3D(self.scan[img_type])
-            if show_type == 'slice':
+            elif show_type == 'slice':
                 show3Dslice(self.scan[img_type])
             else:
                 raise VisError('only volume and slice mode is allowed')
@@ -1308,7 +1325,7 @@ class wama():
         if mayavi_exist_flag:
             if show_type == 'volume':
                 show3D(self.sementic_mask[img_type])
-            if show_type == 'slice':
+            elif show_type == 'slice':
                 show3Dslice(self.sementic_mask[img_type])
             else:
                 raise VisError('only volume and slice mode is allowed')
@@ -1331,26 +1348,27 @@ class wama():
             # 读取mask和image，并拼接
             mask = self.sementic_mask[img_type]
             image = self.scan[img_type]
-            image_mask = np.concatenate([image,mask],axis=2)
-
+            image_mask = np.concatenate([mat2gray(image),mat2gray(mask)],axis=1)
+            image_mask = image_mask*255
 
             if show_type == 'volume':
                 show3D(image_mask)
-            if show_type == 'slice':
+            elif show_type == 'slice':
                 show3Dslice(image_mask)
             else:
                 raise VisError('only volume and slice mode is allowed')
         else:
             warnings.warn('no mayavi exsiting')
 
-    def show_bbox(self, img_type, show_type='volume'):
+    def show_bbox(self, img_type):
         """
-        显示bbox，
+        显示bbox，（这里只是简单的显示bbox的形状，并不是在全图显示bbox的位置）
         :param img_type:
         :param show_type:
         :return:
         """
-        raise NotImplementedError
+        bbox = self.getBbox(img_type=img_type)
+        show3Dbbox(bbox)
 
     def show_bbox_with_img(self, img_type, show_type='volume'):
         """
@@ -1468,13 +1486,13 @@ class wama():
         # 记录aim_spacing
         self.resample_spacing[img_type] = aim_spacing
         # 先对原图操作
-        self.scan[img_type] = zoom(self.scan[img_type], trans_rate,order=2) # 用双三次插值？
+        self.scan[img_type] = zoom(self.scan[img_type], trans_rate,order=3) # 用双三次插值？
         # 再对mask操作
         if img_type in self.scan.keys():
             self.sementic_mask[img_type] = zoom(self.sementic_mask[img_type], trans_rate, order=0)  # 最近邻插值？（检查下是不是还是二值图接可）
         # 再对BBox操作（转化为mask，之后resize，之后取bbox）
         if img_type in self.bbox.keys():
-            self.bbox[img_type] = bbox_scale(self.bbox(img_type),trans_rate) # todo 需要检查一下
+            self.bbox[img_type] = bbox_scale(self.bbox[img_type],trans_rate) # todo 需要检查一下
 
     def is_resample(self, img_type):
         """
@@ -1482,7 +1500,7 @@ class wama():
         :param img_type:
         :return:
         """
-        if  img_type in self.resample_spacing.keys():
+        if  self.resample_spacing[img_type] is not None:
             return True
         else:
             return False
@@ -1542,34 +1560,80 @@ class wama():
     #这个操作可以挪到外面，因为最后还是要分开保存
     def makePatch(self, mode, **kwargs):
         """
-        逻辑：首先框取ROI，之后在ROI内进行操作
-        :param mode: 'slideWin' or 'windmill'
-        :param kwargs:
-                aim_shape: 基于GT or BBox坐标 截取固定大小的ROI进行分patch，最后会有3种情况，即肿瘤mask大于、等于、小于这个ROI， 若不指定，则直接为GT 或 BBox大小
-                ex_voxels：在aim_shape基础上外扩一定像素
+        逻辑：
+        1）先框取ROI获得bbox，之后在ROI内进行操作
+        2）外扩roi
+        3）将roi内图像拿出，缩放到aim_shape
+        4）分patch
 
-                不同mode对应不同参数: 滑动窗'slideWin'，风车'windmill'
-                @ slideWin对应的参数：(一般使用这个操作，可以尝试辅助slice_nb_add这个操作)
-                    size: list, e.p. [80, 80],  or [80, 80, 16]， 即滑动框的shape
-                    axis: list, 滑动的轴，['coronal', 'sagittal', 'axial'], or ['sagittal', 'axial'] or ['x','y','z'] or ['dim0', 'dim1', dim2'] or [0, 1, 2]
-                                这里需要注意，有如下对应关系：
-                                当滑动轴为1个时，window的size必须有两个维度是与原图尺寸相同的，即原图[80,80,80],size其中两维至少为80，这样才能保证在一个axis滑动
-                                同理，滑动轴为2个时，必须size中一维为最大值
-                                滑动轴为3个时，size任意一维度都不要大于最大值
-                    stride: list， 指定几个滑动轴，就有几个步长
-
-                    返回一个list， 所有patch的坐标列表，坐标形式和scan的axis[x,y,z]对应
-                    还会返回patch的数量
-                    以上都会储存在类里
-
-                @ windmill 对应的参数 (一般使用这个操作，不需要辅助slice_nb_add这个操作)
-                    axis：滑动的轴，只可指定一个，['coronal', 'sagittal', 'axial'], or ['sagittal', 'axial'] or ['x','y','z'] or ['dim0', 'dim1', dim2'] or [0, 1, 2]
-                    add_num: 相邻层累加到当前层的厚度，指定为0则不累积，指定为1则当前层n会加上相邻n-1和n+1层的信息
-                    add_weights: list，累加时候相邻层的权重，不设置则直接平均，例n为3时，可设置为[3,2,1,1],对应[n,n+1,n+2,n+3]的权重
-                    patch_slice: 即patch的厚度，默认为1
-
+        参数部分（部分参数和
+        :param mode: 'slideWinND'可以当作1D、2D、3D使用   ('windmill'暂不支持，slideWin1D懒得用了反正slideWinND可以代替slideWin1D的功能）
+        :param kwargs: 大部分参数与getImagefromBbox一样
+            img_type
+            slices
+            stride
+            expand_r
+            ex_mode
+            ex_voxels
+            ex_mms
+            aim_shape
         """
-        raise NotImplementedError
+
+        # 从kwargs中获取参数
+        img_type = kwargs['img_type']
+        slices = kwargs['slices']  # list 包含三个元素，对应三个轴的层数（滑动窗尺寸）
+        stride = kwargs['stride']  # list 包含三个元素，对应三个轴的滑动步长
+        expand_r = kwargs['expand_r']   # 一般是[1,1,1],类似膨胀卷积，即不膨胀
+        ex_mode = kwargs['ex_mode']  # 'bbox' or 'square', bbox则保持之前的形状
+
+        if 'ex_voxels' in kwargs.keys():  # 不指定则默认不外扩，即等于[0,0,0]
+            ex_voxels = kwargs['ex_voxels']
+        else:
+            ex_voxels = [0, 0, 0]
+
+        if 'ex_mms' in kwargs.keys():  # 因为这个不是必须指定的，但是指定了就优先级比ex_voxels高
+            ex_mms = kwargs['ex_mms']
+        else:
+            ex_mms = None
+
+        if 'aim_shape' in kwargs.keys():  # 因为这个不是必须指定的，可以理解为based_shape,patch就是基于这个进行分块的
+            aim_shape = kwargs['aim_shape']
+        else:
+            aim_shape = None  # 保持原来的形状
+
+
+        # 不同模式开始分patch
+        if mode == 'slideWinND':
+            # 检查各个参数
+            if (len(slices) is not 3 or
+                    len(stride) is not 3 or
+                    len(expand_r) is not 3 or
+                    len(ex_voxels) is not 3):
+                raise FormatError('length of slices & stride & expand_r & ex_voxels should be 3')
+
+
+            # 开始分patch
+            patches = slide_window_n_axis(array3D = self.scan[img_type],
+                                          spacing=self.spacing[img_type],
+                                          origin=self.origin[img_type],
+                                          transfmat=self.transfmat[img_type],
+                                          axesOrder=self.axesOrder[img_type],
+                                          bbox = self.getBbox(img_type=img_type),
+                                          slices=slices,
+                                          stride=stride,
+                                          expand_r=expand_r,
+                                          mask=self.sementic_mask[img_type],
+                                          ex_mode=ex_mode,
+                                          ex_voxels=ex_voxels,
+                                          ex_mms=ex_mms,
+                                          resample_spacing=self.resample_spacing[img_type],
+                                          aim_shape=aim_shape)
+        else:
+            raise ValueError('mode should be slideWinND')
+
+
+        self.patches[img_type] = patches
+
 
 
 
