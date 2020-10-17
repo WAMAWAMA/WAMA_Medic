@@ -1,0 +1,33 @@
+{
+    "image_id": "290129",
+    "age": 16,
+    "sex": "male",
+    "symptom": 1,
+    "img": {
+        "CT": {
+            "arterial": {
+                "filename": "n.nii.gz",
+                "maskname": "n_mask.nii.gz",
+                "landmark": "a_landmark.nii.gz"
+            },
+            "venous": {
+                "filename": "v.nii.gz",
+                "maskname": "v_mask.nii.gz"
+            }
+        }
+    },
+    "tumor": {
+        "1": {
+            "type": "pnens",
+            "nens_grade": "1",
+            "post_recurrent": 1,
+            "sstr2": 1,
+            "vegfr2": 1,
+            "mgmt": 1,
+            "localization": "[ 50, 60, 142, 160, 120, 340 ]"
+        },
+        "2": {
+            "post_recurrent": 1
+        }
+    }
+}

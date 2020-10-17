@@ -18,8 +18,8 @@
       <file leaf-file-name="wamar.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wamar.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="247">
-              <caret line="55" column="49" selection-start-line="55" selection-start-column="49" selection-end-line="55" selection-end-column="49" />
+            <state relative-caret-position="-627">
+              <caret line="12" column="4" selection-start-line="12" selection-start-column="4" selection-end-line="12" selection-end-column="4" />
             </state>
           </provider>
         </entry>
@@ -27,8 +27,8 @@
       <file leaf-file-name="data_augmentation.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wama/data_augmentation.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="380">
-              <caret line="23" selection-start-line="23" selection-end-line="23" />
+            <state relative-caret-position="265">
+              <caret line="161" selection-start-line="161" selection-end-line="161" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -36,20 +36,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="meta.py" pinned="false" current-in-tab="false">
-        <entry file="file://D:/pro_software/anaconda/Lib/site-packages/imgaug/augmenters/meta.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="58064">
-              <caret line="3074" column="37" selection-start-line="3074" selection-start-column="23" selection-end-line="3074" selection-end-column="37" />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="data_loader.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wama/data_loader.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="517">
-              <caret line="157" selection-start-line="157" selection-end-line="157" />
+            <state relative-caret-position="19">
+              <caret line="76" column="24" selection-start-line="76" selection-start-column="6" selection-end-line="76" selection-end-column="24" />
               <folding>
                 <element signature="e#45#73#0" expanded="true" />
               </folding>
@@ -69,60 +60,53 @@
       <file leaf-file-name="utils.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wama/utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="181">
-              <caret line="889" column="11" selection-start-line="889" selection-start-column="11" selection-end-line="889" selection-end-column="11" />
+            <state relative-caret-position="247">
+              <caret line="262" lean-forward="true" selection-start-line="262" selection-end-line="262" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
                 <element signature="e#1270#1301#0" />
-                <element signature="e#1327#1376#0" />
                 <element signature="e#1401#1544#0" />
                 <element signature="e#1574#2079#0" />
                 <element signature="e#2144#3168#0" />
-                <element signature="e#3207#4801#0" />
                 <element signature="e#4828#5052#0" />
                 <element signature="e#5085#5229#0" />
                 <element signature="e#5282#5876#0" />
                 <element signature="e#5913#6088#0" />
-                <element signature="e#6157#7185#0" />
-                <element signature="e#7245#7710#0" />
-                <element signature="e#7763#7819#0" />
-                <element signature="e#7850#8095#0" />
-                <element signature="e#8393#8638#0" />
-                <element signature="e#8417#10245#0" />
-                <element signature="e#10347#11052#0" />
-                <element signature="e#11129#11581#0" />
-                <element signature="e#11616#12176#0" />
-                <element signature="e#12257#14866#0" />
-                <element signature="e#14896#14976#0" />
-                <element signature="e#14997#15036#0" />
-                <element signature="e#15409#24228#0" />
-                <element signature="e#24281#25692#0" />
-                <element signature="e#33563#34168#0" />
-                <element signature="e#36904#37493#0" />
-                <element signature="e#37983#38122#0" />
-                <element signature="e#44779#44977#0" />
                 <element signature="e#45819#46468#0" />
-                <element signature="e#46076#46696#0" />
-                <element signature="e#47848#48028#0" />
-                <element signature="e#47843#47979#0" />
-                <element signature="e#48084#49064#0" />
-                <element signature="e#49113#49768#0" />
-                <element signature="e#49818#50608#0" />
-                <element signature="e#50658#50690#0" />
-                <element signature="e#51368#52733#0" />
-                <element signature="e#52192#52409#0" />
-                <element signature="e#52464#52657#0" />
-                <element signature="e#52781#54033#0" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="demo_wama.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="demo_wama.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/demo_wama.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="513">
-              <caret line="27" column="58" selection-start-line="27" selection-start-column="58" selection-end-line="27" selection-end-column="58" />
+            <state relative-caret-position="722">
+              <caret line="38" lean-forward="true" selection-start-line="38" selection-end-line="38" />
+              <folding>
+                <element signature="e#0#24#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ddump_metainfo.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/ddump_metainfo.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="149">
+              <caret line="43" column="12" lean-forward="true" selection-start-line="43" selection-start-column="12" selection-end-line="43" selection-end-column="12" />
+              <folding>
+                <element signature="e#0#9#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ob1.json" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/ob1.json">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="437">
+              <caret line="32" column="1" lean-forward="true" selection-start-line="32" selection-start-column="1" selection-end-line="32" selection-end-column="1" />
             </state>
           </provider>
         </entry>
@@ -149,6 +133,7 @@
       <find>deformation_scale</find>
       <find>去重</find>
       <find>order</find>
+      <find>pickle</find>
     </findStrings>
   </component>
   <component name="IdeDocumentHistory">
@@ -160,11 +145,12 @@
         <option value="$PROJECT_DIR$/data_augmentation.py" />
         <option value="$PROJECT_DIR$/data_loader.py" />
         <option value="$PROJECT_DIR$/demo_DKFZ_batchgenerator.py" />
-        <option value="$PROJECT_DIR$/wamar.py" />
         <option value="$PROJECT_DIR$/wama/data_loader.py" />
         <option value="$PROJECT_DIR$/wama/data_augmentation.py" />
+        <option value="$PROJECT_DIR$/wamar.py" />
         <option value="$PROJECT_DIR$/wama/utils.py" />
         <option value="$PROJECT_DIR$/demo_wama.py" />
+        <option value="$PROJECT_DIR$/ddump_metainfo.py" />
       </list>
     </option>
   </component>
@@ -178,31 +164,16 @@
     <packageJsonPaths />
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="116" />
-    <option name="width" value="912" />
-    <option name="height" value="1088" />
+    <option name="x" value="1173" />
+    <option name="y" value="211" />
+    <option name="width" value="732" />
+    <option name="height" value="872" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="ProjectPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="proj" type="b2602c69:ProjectViewProjectNode" />
-              <item name="proj" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="proj" type="b2602c69:ProjectViewProjectNode" />
-              <item name="proj" type="462c0819:PsiDirectoryNode" />
-              <item name="wama" type="462c0819:PsiDirectoryNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
       <pane id="Scope">
         <subPane subId="Problems">
           <expand>
@@ -218,6 +189,17 @@
             <path>
               <item name="Root" type="cbb8eebc:String" user="Root" />
               <item name="proj" type="cbb8eebc:String" user="proj" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="proj" type="b2602c69:ProjectViewProjectNode" />
+              <item name="proj" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -321,17 +303,17 @@
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
       <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Version Control" order="7" show_stripe_button="false" />
-      <window_info active="true" anchor="bottom" id="Python Console" order="7" visible="true" weight="0.29045644" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.32883817" />
+      <window_info anchor="bottom" id="Version Control" order="7" show_stripe_button="false" />
+      <window_info active="true" anchor="bottom" id="Python Console" order="7" visible="true" weight="0.4533195" />
       <window_info anchor="bottom" id="Terminal" order="7" />
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.15753424" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.10673516" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="3" />
-      <window_info anchor="right" id="SciView" order="3" visible="true" weight="0.14155251" />
+      <window_info anchor="right" id="SciView" order="3" visible="true" weight="0.025684932" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -349,24 +331,39 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="12" />
+      <option name="time" value="13" />
     </breakpoint-manager>
   </component>
+  <component name="debuggerHistoryManager">
+    <expressions id="setValue">
+      <expression>
+        <expression-string>'@ tumor @ 1 @ post_recurrent @ 1  '</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>{'imgid': 1, 'img': {'art': 'qwe'}}</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>{'art': 'qwe'}</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>1</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>'qwe'</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+    </expressions>
+  </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/preprocessing/utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="570">
-          <caret line="35" selection-start-line="35" selection-end-line="35" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/resUnet/main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="722">
-          <caret line="38" selection-start-line="38" selection-end-line="38" selection-end-column="30" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/resUnet/preprocessing/utils.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="304">
@@ -636,17 +633,36 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/wama/utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="247">
+          <caret line="262" lean-forward="true" selection-start-line="262" selection-end-line="262" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+            <element signature="e#1270#1301#0" />
+            <element signature="e#1401#1544#0" />
+            <element signature="e#1574#2079#0" />
+            <element signature="e#2144#3168#0" />
+            <element signature="e#4828#5052#0" />
+            <element signature="e#5085#5229#0" />
+            <element signature="e#5282#5876#0" />
+            <element signature="e#5913#6088#0" />
+            <element signature="e#45819#46468#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://D:/pro_software/anaconda/Lib/site-packages/imgaug/augmenters/meta.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="58064">
-          <caret line="3074" column="37" selection-start-line="3074" selection-start-column="23" selection-end-line="3074" selection-end-column="37" />
+        <state relative-caret-position="2907">
+          <caret line="3082" column="7" lean-forward="true" selection-start-line="3082" selection-start-column="7" selection-end-line="3082" selection-end-column="7" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/wama/data_augmentation.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="380">
-          <caret line="23" selection-start-line="23" selection-end-line="23" />
+        <state relative-caret-position="265">
+          <caret line="161" selection-start-line="161" selection-end-line="161" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
@@ -655,75 +671,45 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/wama/data_loader.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="517">
-          <caret line="157" selection-start-line="157" selection-end-line="157" />
+        <state relative-caret-position="19">
+          <caret line="76" column="24" selection-start-line="76" selection-start-column="6" selection-end-line="76" selection-end-column="24" />
           <folding>
             <element signature="e#45#73#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wamar.py">
+    <entry file="file://$PROJECT_DIR$/demo_wama.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="247">
-          <caret line="55" column="49" selection-start-line="55" selection-start-column="49" selection-end-line="55" selection-end-column="49" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/wama/utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="181">
-          <caret line="889" column="11" selection-start-line="889" selection-start-column="11" selection-end-line="889" selection-end-column="11" />
+        <state relative-caret-position="722">
+          <caret line="38" lean-forward="true" selection-start-line="38" selection-end-line="38" />
           <folding>
-            <element signature="e#0#18#0" expanded="true" />
-            <element signature="e#1270#1301#0" />
-            <element signature="e#1327#1376#0" />
-            <element signature="e#1401#1544#0" />
-            <element signature="e#1574#2079#0" />
-            <element signature="e#2144#3168#0" />
-            <element signature="e#3207#4801#0" />
-            <element signature="e#4828#5052#0" />
-            <element signature="e#5085#5229#0" />
-            <element signature="e#5282#5876#0" />
-            <element signature="e#5913#6088#0" />
-            <element signature="e#6157#7185#0" />
-            <element signature="e#7245#7710#0" />
-            <element signature="e#7763#7819#0" />
-            <element signature="e#7850#8095#0" />
-            <element signature="e#8393#8638#0" />
-            <element signature="e#8417#10245#0" />
-            <element signature="e#10347#11052#0" />
-            <element signature="e#11129#11581#0" />
-            <element signature="e#11616#12176#0" />
-            <element signature="e#12257#14866#0" />
-            <element signature="e#14896#14976#0" />
-            <element signature="e#14997#15036#0" />
-            <element signature="e#15409#24228#0" />
-            <element signature="e#24281#25692#0" />
-            <element signature="e#33563#34168#0" />
-            <element signature="e#36904#37493#0" />
-            <element signature="e#37983#38122#0" />
-            <element signature="e#44779#44977#0" />
-            <element signature="e#45819#46468#0" />
-            <element signature="e#46076#46696#0" />
-            <element signature="e#47848#48028#0" />
-            <element signature="e#47843#47979#0" />
-            <element signature="e#48084#49064#0" />
-            <element signature="e#49113#49768#0" />
-            <element signature="e#49818#50608#0" />
-            <element signature="e#50658#50690#0" />
-            <element signature="e#51368#52733#0" />
-            <element signature="e#52192#52409#0" />
-            <element signature="e#52464#52657#0" />
-            <element signature="e#52781#54033#0" />
+            <element signature="e#0#24#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/demo_wama.py">
+    <entry file="file://$PROJECT_DIR$/wamar.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="513">
-          <caret line="27" column="58" selection-start-line="27" selection-start-column="58" selection-end-line="27" selection-end-column="58" />
+        <state relative-caret-position="-627">
+          <caret line="12" column="4" selection-start-line="12" selection-start-column="4" selection-end-line="12" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ob1.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="437">
+          <caret line="32" column="1" lean-forward="true" selection-start-line="32" selection-start-column="1" selection-end-line="32" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ddump_metainfo.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="149">
+          <caret line="43" column="12" lean-forward="true" selection-start-line="43" selection-start-column="12" selection-end-line="43" selection-end-column="12" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
