@@ -15,7 +15,7 @@ from wama.utils import load_from_pkl
 
 
 # 先构建一个数组再说，然后把patch都搞进来
-dataset = patches
+# dataset = patches
 
 class wama_dataset(data.Dataset):
     """

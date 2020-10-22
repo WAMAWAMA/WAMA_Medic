@@ -1,6 +1,6 @@
 import numpy as np
 import SimpleITK as sitk
-
+import imageio
 from scipy.ndimage import zoom
 import pickle
 import os
@@ -219,6 +219,16 @@ def adjustWindow(img, WW, WL):
     img[img>WL+WW*0.5] = WL+WW*0.5
     img[img<WL-WW*0.5] = WL-WW*0.5
     return img
+
+
+# for 2D
+def readIMG2D(img_pth):
+    np.array(imageio.imread(img_pth))
+
+
+
+
+
 
 # todo
 # 要好好确认下spacing对应的维度，以及scan对应的维度
