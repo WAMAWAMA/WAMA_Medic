@@ -15,23 +15,24 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="data_augmentation.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/wama/data_augmentation.py">
+      <file leaf-file-name="utils.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/wama/utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2147">
-              <caret line="125" selection-start-line="125" selection-end-line="140" />
+            <state relative-caret-position="295">
+              <caret line="404" selection-start-line="404" selection-end-line="404" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
+                <element signature="e#56379#57729#0" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="demo_loaddata.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="demo_loaddata.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/demo_loaddata.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="215">
-              <caret line="77" column="1" lean-forward="true" selection-start-line="77" selection-start-column="1" selection-end-line="77" selection-end-column="1" />
+            <state relative-caret-position="901">
+              <caret line="112" lean-forward="true" selection-start-line="112" selection-end-line="112" />
               <folding>
                 <element signature="e#0#14#0" expanded="true" />
               </folding>
@@ -39,48 +40,13 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="demo_DKFZ_batchgenerator.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/demo_DKFZ_batchgenerator.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="57">
-              <caret line="85" selection-start-line="85" selection-end-line="85" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="data_loader_beta.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/wama/data_loader_beta.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="293">
-              <caret line="23" lean-forward="true" selection-start-line="23" selection-end-line="23" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="utils.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/wama/utils.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4142">
-              <caret line="226" selection-start-line="226" selection-end-line="226" />
-              <folding>
-                <element signature="e#0#18#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="demo4shujuzhengli.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/demo4shujuzhengli.py">
+      <file leaf-file-name="demo_wama.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/demo_wama.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="228">
-              <caret line="12" selection-start-line="12" selection-end-line="12" />
+              <caret line="25" column="20" selection-start-line="25" selection-start-column="20" selection-end-line="25" selection-end-column="20" />
             </state>
           </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="demo4registration.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/demo4registration.py">
-          <provider selected="true" editor-type-id="text-editor" />
         </entry>
       </file>
     </leaf>
@@ -108,6 +74,10 @@
       <find>pickle</find>
       <find>zoom</find>
       <find>plot</find>
+      <find>pkl</find>
+      <find>resize</find>
+      <find>resize3D</find>
+      <find>high</find>
     </findStrings>
   </component>
   <component name="IdeDocumentHistory">
@@ -120,14 +90,14 @@
         <option value="$PROJECT_DIR$/data_loader.py" />
         <option value="$PROJECT_DIR$/demo_DKFZ_batchgenerator.py" />
         <option value="$PROJECT_DIR$/wamar.py" />
-        <option value="$PROJECT_DIR$/demo_wama.py" />
         <option value="$PROJECT_DIR$/ddump_metainfo.py" />
         <option value="$PROJECT_DIR$/demo4registration.py" />
         <option value="$PROJECT_DIR$/wama/data_loader.py" />
-        <option value="$PROJECT_DIR$/wama/utils.py" />
         <option value="$PROJECT_DIR$/wama/data_loader_beta_demo.py" />
         <option value="$PROJECT_DIR$/wama/data_augmentation.py" />
         <option value="$PROJECT_DIR$/wama/data_loader_beta.py" />
+        <option value="$PROJECT_DIR$/demo_wama.py" />
+        <option value="$PROJECT_DIR$/wama/utils.py" />
         <option value="$PROJECT_DIR$/demo_loaddata.py" />
       </list>
     </option>
@@ -142,10 +112,9 @@
     <packageJsonPaths />
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="142" />
-    <option name="y" value="-14" />
-    <option name="width" value="1145" />
-    <option name="height" value="1364" />
+    <option name="x" value="160" />
+    <option name="width" value="1855" />
+    <option name="height" value="1089" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -290,13 +259,13 @@
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
       <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="7" show_stripe_button="false" />
-      <window_info active="true" anchor="bottom" id="Python Console" order="7" visible="true" weight="0.43850267" />
+      <window_info anchor="bottom" id="Python Console" order="7" visible="true" weight="0.315508" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.32883817" />
       <window_info anchor="bottom" id="Terminal" order="7" />
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.2733918" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.16739766" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="3" />
-      <window_info anchor="right" id="SciView" order="3" visible="true" weight="7.3099416E-4" />
+      <window_info anchor="right" id="SciView" order="3" visible="true" weight="0.20614035" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
@@ -588,13 +557,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/demo_wama.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="703">
-          <caret line="38" selection-start-line="38" selection-end-line="38" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/ddump_metainfo.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2698">
@@ -609,30 +571,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/demo4shujuzhengli.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="228">
-          <caret line="12" selection-start-line="12" selection-end-line="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/demo4registration.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/resUnet/dice_loss.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="24">
           <caret line="29" column="4" selection-start-line="29" selection-start-column="4" selection-end-line="29" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/wama/utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4142">
-          <caret line="226" selection-start-line="226" selection-end-line="226" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -670,16 +612,44 @@
     <entry file="file://$PROJECT_DIR$/wama/data_loader_beta.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="293">
-          <caret line="23" lean-forward="true" selection-start-line="23" selection-end-line="23" />
+          <caret line="23" selection-start-line="23" selection-end-line="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/demo4shujuzhengli.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="228">
+          <caret line="12" selection-start-line="12" selection-end-line="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/demo4registration.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/demo_wama.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="228">
+          <caret line="25" column="20" selection-start-line="25" selection-start-column="20" selection-end-line="25" selection-end-column="20" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/demo_loaddata.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="215">
-          <caret line="77" column="1" lean-forward="true" selection-start-line="77" selection-start-column="1" selection-end-line="77" selection-end-column="1" />
+        <state relative-caret-position="901">
+          <caret line="112" lean-forward="true" selection-start-line="112" selection-end-line="112" />
           <folding>
             <element signature="e#0#14#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wama/utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="295">
+          <caret line="404" selection-start-line="404" selection-end-line="404" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+            <element signature="e#56379#57729#0" />
           </folding>
         </state>
       </provider>

@@ -41,6 +41,18 @@ def load_from_pkl(load_path):
     return read_data
 
 
+def resize2D(img, aimsize, order = 3):
+    """
+
+    :param img: 3D array
+    :param aimsize: list, one or three elements, like [256], or [256,56,56]
+    :return:
+    """
+    _shape =img.shape
+    if len(aimsize)==1:
+        aimsize = [aimsize[0] for _ in range(2)]
+    return zoom(img, (aimsize[0] / _shape[0], aimsize[1] / _shape[1]), order=order)  # resample for cube_size
+
 
 def resize3D(img, aimsize, order = 3):
     """
@@ -367,7 +379,32 @@ def gaussian_filter(size, sigma = 10):
         return (gaussian[center[0]]).astype(np.float32)
 
 # show2D(mat2gray(  gaussian_filter([81,81], 30)    )   )
+show2D(mat2gray(  gaussian_filter([31,121], 30)    )   )
 
+# 基于Gaussian构建伪mask（算是显著性区域吧）
+def add_highlight_area2D(array, bbox, value=1., sigma=10):
+    """
+    
+    :param array: 需要被高亮的矩阵（支持多通道）
+    :param value: 添加的值（最大值）
+    :param bbox: xmin, ymin, xmax, ymax (y对应dim0，x对应dim1）
+    :param sigma: 高斯的方差
+    :return: 
+    """
+    xmin, ymin, xmax, ymax = list(bbox)
+    width = xmax - xmin
+    height = ymax - ymin
+    maxlenth = max(width, height)
+    if maxlenth%2 ==0:  #  保证一定是奇数
+        maxlenth += 1
+    tmp_gaussain_mat = mat2gray(resize2D(gaussian_filter([maxlenth, maxlenth], sigma),aimsize = [height,width]))*value
+
+    # 放回原图
+    array[ymin:ymax,xmin:xmax] += tmp_gaussain_mat
+
+    return array
+
+# show2D(add_highlight_area2D(np.zeros([560,1220]),value=1,bbox=[420,120,690,260]))
 
 
 def checkoutIndex(array3D, index):

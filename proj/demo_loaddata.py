@@ -74,7 +74,7 @@ pipeline1 = [
     {'method': dataaug, 'in_key': ['img', 'seg'], 'out_key': ['img', 'seg']},
     {'method': trans2normalimg, 'in_key': ['img', 'seg'], 'out_key': ['img', 'seg']},
     {'method': None, 'in_key': ['img', 'seg'], 'out_key': ['img', 'seg']},
-    {'method': None, 'in_key': ['img', 'seg'], 'out_key': ['img', 'seg']},
+    {'method': None, 'in_key': ['img', 'seg'], 'out_key': ['img1', 'seg1']},
 ]
 pipeline2 = [
     {'method': labelonehot4label1,
@@ -108,8 +108,8 @@ def plot_batch(batch):
 
 
 a = run_pipeline(in_dict=indict, pipeline=pipeline1)
-a = run_pipeline(in_dict=indict, pipeline=pipeline2)
-a = run_pipeline(in_dict=indict, pipeline=pipeline3)
+b = run_pipeline(in_dict=indict, pipeline=pipeline2)
+c = run_pipeline(in_dict=indict, pipeline=pipeline3)
 
 input_dict_list = [indict]
 for _ in range(7):

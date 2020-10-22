@@ -2,8 +2,8 @@ from wama.utils import *
 import copy
 
 
-img_path = r'E:\@data_NENs\@data_NENs_recurrence\or_data\data\nii\aWITHmask4radiomics\s42_v1.nii'
-mask_path = r'E:\@data_NENs\@data_NENs_recurrence\or_data\data\nii\aWITHmask4radiomics\s42_v1_m1_w.nii'
+img_path = r'D:\git\testnini\s22_v1.nii'
+mask_path = r'D:\git\testnini\s22_v1_m1.nii'
 
 subject1 = wama()
 subject1.appendImageAndSementicMaskFromNifti('CT', img_path, mask_path)
