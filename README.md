@@ -220,4 +220,52 @@ show3D(np.concatenate([bbox_image, reconstuct_img_onlyone], axis=1))
 </table>
 
 
+## 3D图像增强或扩增
+
+
+```python
+
+from wama.utils import *
+from wama.data_augmentation import aug3D
+
+img_path = r'D:\git\testnini\s22_v1.nii.gz'
+mask_path = r'D:\git\testnini\s22_v1_m1.nii.gz'
+
+subject1 = wama()
+subject1.appendImageAndSementicMaskFromNifti('CT', img_path, mask_path)
+subject1.adjst_Window('CT', 321, 123)
+bbox_image = subject1.getImagefromBbox('CT',ex_mode='square', aim_shape=[128,128,128])
+
+
+bbox_image_batch = np.expand_dims(np.stack([bbox_image,bbox_image,bbox_image,bbox_image,bbox_image]),axis=1)# 构建batch
+bbox_mask_batch = np.zeros(bbox_image_batch.shape)
+bbox_mask_batch[:,:,20:100,20:100,20:100] = 1
+
+auger = aug3D(size=[128,128,128], deformation_scale = 0.25) # size为原图大小即可（或batch大小）
+aug_result = auger.aug(dict(data=bbox_image_batch, seg = bbox_mask_batch))  # 注意要以字典形式传入
+
+# 可视化
+index = 1
+show3D(np.concatenate([np.squeeze(aug_result['seg'][index],axis=0),np.squeeze(bbox_mask_batch[index],axis=0)],axis=1))
+aug_img = np.squeeze(aug_result['data'][index],axis=0)
+show3D(np.concatenate([aug_img,bbox_image],axis=1)*100)
+
+```
+
+
+<table>
+
+<!-- Line 1: Original Input -->
+<tr>
+<td><img src="https://github.com/WAMAWAMA/wama_medic/blob/master/pic/4_scan_aug.gif" height="283" width="324" alt="input images"></td>
+<td><img src="https://github.com/WAMAWAMA/wama_medic/blob/master/pic/4_mask_aug.gif" height="283" width="324" alt="input heatmaps"></td>
+</tr>
+
+<tr>
+<th>原图，扩增前后</th>
+<th>mask，扩增前后</th>
+</tr>
+
+
+</table>
 
