@@ -118,21 +118,21 @@ def show3Dbbox(bbox3D,line_thick = None):
     if line_thick is None:
         line_thick = np.max(tmp_img.shape) // 20
 
-    tmp_img[0:line_thick,:,0:line_thick] = 10
-    tmp_img[:,0:line_thick,0:line_thick] = 10
-    tmp_img[0:line_thick,0:line_thick,:] = 10
+    tmp_img[0:line_thick,:,0:line_thick] = 100
+    tmp_img[:,0:line_thick,0:line_thick] = 100
+    tmp_img[0:line_thick,0:line_thick,:] = 100
 
-    tmp_img[-1:-(line_thick+1):-1,:,0:line_thick] = 10
-    tmp_img[:,-1:-(line_thick+1):-1,0:line_thick] = 10
-    tmp_img[0:line_thick,-1:-(line_thick+1):-1,:] = 10
+    tmp_img[-1:-(line_thick+1):-1,:,0:line_thick] = 100
+    tmp_img[:,-1:-(line_thick+1):-1,0:line_thick] = 100
+    tmp_img[0:line_thick,-1:-(line_thick+1):-1,:] = 100
 
-    tmp_img[-1:-(line_thick+1):-1,:,-1:-(line_thick+1):-1] = 10
-    tmp_img[:,-1:-(line_thick+1):-1,-1:-(line_thick+1):-1] = 10
-    tmp_img[-1:-(line_thick+1):-1,-1:-(line_thick+1):-1,:] = 10
+    tmp_img[-1:-(line_thick+1):-1,:,-1:-(line_thick+1):-1] = 100
+    tmp_img[:,-1:-(line_thick+1):-1,-1:-(line_thick+1):-1] = 100
+    tmp_img[-1:-(line_thick+1):-1,-1:-(line_thick+1):-1,:] = 100
 
-    tmp_img[0:line_thick,:,-1:-(line_thick+1):-1] = 10
-    tmp_img[:,0:line_thick,-1:-(line_thick+1):-1] = 10
-    tmp_img[-1:-(line_thick+1):-1,0:line_thick,:] = 10
+    tmp_img[0:line_thick,:,-1:-(line_thick+1):-1] = 100
+    tmp_img[:,0:line_thick,-1:-(line_thick+1):-1] = 100
+    tmp_img[-1:-(line_thick+1):-1,0:line_thick,:] = 100
 
     show3D(tmp_img)
 
@@ -387,7 +387,7 @@ def gaussian_filter(size, sigma = 10):
         return (gaussian[center[0]]).astype(np.float32)
 
 # show2D(mat2gray(  gaussian_filter([81,81], 30)    )   )
-show2D(mat2gray(  gaussian_filter([31,121], 30)    )   )
+# show2D(mat2gray(  gaussian_filter([31,121], 30)    )   )
 
 # 基于Gaussian构建伪mask（算是显著性区域吧）
 def add_highlight_area2D(array, bbox, value=1., sigma=10):
@@ -1072,7 +1072,7 @@ class wama():
     def appendImageFromNifti(self, img_type, img_path, printflag = False):
         """
         添加影像
-        :param img_type:
+        :param img_type: 自己随便定义，就是个自定义的关键字
         :param img_path:
         :param printflag: 是否打印影像信息
         :return:
@@ -1387,7 +1387,7 @@ class wama():
         else:
             warnings.warn('no mayavi exsiting')
 
-    def show_maskAndImage(self, img_type, show_type = 'volume'):
+    def show_MaskAndScan(self, img_type, show_type = 'volume'):
         """
         拼接在一起显示
         :param img_type:
@@ -1415,7 +1415,7 @@ class wama():
         else:
             warnings.warn('no mayavi exsiting')
 
-    def show_bbox(self, img_type):
+    def show_bbox(self, img_type, line_thick = 2):
         """
         显示bbox，（这里只是简单的显示bbox的形状，并不是在全图显示bbox的位置）
         :param img_type:
@@ -1423,7 +1423,7 @@ class wama():
         :return:
         """
         bbox = self.getBbox(img_type=img_type)
-        show3Dbbox(bbox)
+        show3Dbbox(bbox, line_thick = line_thick)
 
     def show_bbox_with_img(self, img_type, show_type='volume'):
         """
