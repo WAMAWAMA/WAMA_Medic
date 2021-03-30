@@ -1,6 +1,7 @@
 
 # ωαмα
-一个粗糙的医学图像预处理与可视化的库
+一个粗糙的医学图像预处理与3D或2D可视化的库
+
 （🐢building...，ps：墙内不翻墙看不到例子图）
 
 
@@ -73,28 +74,24 @@ subject1.show_bbox('CT', 2)  # 显示bbox形状，注意，不存在bbox时，�
 
 <!-- Line 1: Original Input -->
 <tr>
-<td><img src="https://raw.githubusercontent.com/aleju/imgaug-doc/master/readme_images/small_overview/noop_image.jpg?raw=true" height="83" width="124" alt="input images"></td>
-<td><img src="https://raw.githubusercontent.com/aleju/imgaug-doc/master/readme_images/small_overview/noop_heatmap.jpg?raw=true" height="83" width="124" alt="input heatmaps"></td>
-<td><img src="https://raw.githubusercontent.com/aleju/imgaug-doc/master/readme_images/small_overview/noop_segmap.jpg?raw=true" height="83" width="124" alt="input segmentation maps"></td>
+<td><img src="https://github.com/WAMAWAMA/wama_medic/blob/master/pic/1_show_scan_slicemode.gif" height="283" width="324" alt="input images"></td>
+<td><img src="https://github.com/WAMAWAMA/wama_medic/blob/master/pic/1_show_scan_volumemode.gif" height="283" width="324" alt="input heatmaps"></td>
 </tr>
 
 <tr>
-<th>Image</th>
-<th>Image</th>
-<th>Heatmaps</th>
+<th>显示原图，slice模式</th>
+<th>显示原图，volume模式</th>
 </tr>
 
 <!-- Line 1: Original Input -->
 <tr>
-<td><img src="https://raw.githubusercontent.com/aleju/imgaug-doc/master/readme_images/small_overview/noop_image.jpg?raw=true" height="83" width="124" alt="input images"></td>
-<td><img src="https://raw.githubusercontent.com/aleju/imgaug-doc/master/readme_images/small_overview/noop_heatmap.jpg?raw=true" height="83" width="124" alt="input heatmaps"></td>
-<td><img src="https://raw.githubusercontent.com/aleju/imgaug-doc/master/readme_images/small_overview/noop_segmap.jpg?raw=true" height="83" width="124" alt="input segmentation maps"></td>
+<td><img src="https://github.com/WAMAWAMA/wama_medic/blob/master/pic/1_show_scanandmask_volumemode.gif" height="283" width="324" alt="input images"></td>
+<td><img src="https://github.com/WAMAWAMA/wama_medic/blob/master/pic/1_show_bbox_volumemode.gif" height="283" width="324" alt="input heatmaps"></td>
 </tr>
 
 <tr>
-<th>Image</th>
-<th>Image</th>
-<th>Heatmaps</th>
+<th>同时显示原图和mask</th>
+<th>显示bbox形状</th>
 </tr>
 
 </table>
@@ -200,28 +197,24 @@ show3D(np.concatenate([bbox_image, reconstuct_img_onlyone], axis=1))
 
 <!-- Line 1: Original Input -->
 <tr>
-<td><img src="https://raw.githubusercontent.com/aleju/imgaug-doc/master/readme_images/small_overview/noop_image.jpg?raw=true" height="83" width="124" alt="input images"></td>
-<td><img src="https://raw.githubusercontent.com/aleju/imgaug-doc/master/readme_images/small_overview/noop_heatmap.jpg?raw=true" height="83" width="124" alt="input heatmaps"></td>
-<td><img src="https://raw.githubusercontent.com/aleju/imgaug-doc/master/readme_images/small_overview/noop_segmap.jpg?raw=true" height="83" width="124" alt="input segmentation maps"></td>
+<td><img src="https://github.com/WAMAWAMA/wama_medic/blob/master/pic/2_show_patches_all_z.gif" height="283" width="324" alt="input images"></td>
+<td><img src="https://github.com/WAMAWAMA/wama_medic/blob/master/pic/2_show_patches_half_z.gif" height="283" width="324" alt="input heatmaps"></td>
 </tr>
 
 <tr>
-<th>Image</th>
-<th>Image</th>
-<th>Heatmaps</th>
+<th>设置一：沿着Z轴分patch，并放回所有patch</th>
+<th>设置一：沿着Z轴分patch，并放回一半patch</th>
 </tr>
 
 <!-- Line 1: Original Input -->
 <tr>
-<td><img src="https://raw.githubusercontent.com/aleju/imgaug-doc/master/readme_images/small_overview/noop_image.jpg?raw=true" height="83" width="124" alt="input images"></td>
-<td><img src="https://raw.githubusercontent.com/aleju/imgaug-doc/master/readme_images/small_overview/noop_heatmap.jpg?raw=true" height="83" width="124" alt="input heatmaps"></td>
-<td><img src="https://raw.githubusercontent.com/aleju/imgaug-doc/master/readme_images/small_overview/noop_segmap.jpg?raw=true" height="83" width="124" alt="input segmentation maps"></td>
+<td><img src="https://github.com/WAMAWAMA/wama_medic/blob/master/pic/2_show_patches_squared.gif"  height="283" width="324" alt="input images"></td>
+<td><img src="https://github.com/WAMAWAMA/wama_medic/blob/master/pic/3_show_patches_expand.gif"  height="283" width="324" alt="input images"></td>
 </tr>
 
 <tr>
-<th>Image</th>
-<th>Image</th>
-<th>Heatmaps</th>
+<th>设置二：分块（类似魔方）</th>
+<th>设置三：观察膨胀系数的影响</th>
 </tr>
 
 </table>
