@@ -119,9 +119,94 @@ def img_aug_augmenter(batch_dict):
 """3D 的扩增"""
 # 3D 的扩增 --------------------------------------------------------------
 # 暂时只有DKFZ的BG
+from batchgenerators.transforms.abstract_transforms import Compose
+from batchgenerators.transforms.spatial_transforms import SpatialTransform_2,SpatialTransform
 
 
+def get_transformer(bbox_image_shape = [256, 256, 256], deformation_scale = 0.2):
+    """
 
+    :param bbox_image_shape:  [256, 256, 256]
+    :param deformation_scale: 扭曲程度，0几乎没形变，0.2形变很大，故0~0.25是合理的
+    :return:
+    """
+    tr_transforms = []
+    # tr_transforms.append(MirrorTransform(axes=(0, 1, 2)))
+    # （这个SpatialTransform_2与SpatialTransform的区别就在这里，SpatialTransform_2提供了有一定限制的扭曲变化，保证图像不会过度扭曲）
+
+    tr_transforms.append(
+        SpatialTransform_2(
+            patch_size=bbox_image_shape,
+            patch_center_dist_from_border=[i // 2 for i in bbox_image_shape],
+            do_elastic_deform=True, deformation_scale=(deformation_scale, deformation_scale + 0.1),
+            do_rotation=False,
+            angle_x=(- 15 / 360. * 2 * np.pi, 15 / 360. * 2 * np.pi),  # 随机旋转的角度
+            angle_y=(- 15 / 360. * 2 * np.pi, 15 / 360. * 2 * np.pi),
+            angle_z=(- 15 / 360. * 2 * np.pi, 15 / 360. * 2 * np.pi),
+            do_scale=False,
+            scale=(0.75, 1.25),
+            border_mode_data='constant', border_cval_data=0,
+            border_mode_seg='constant', border_cval_seg=0,
+            order_seg=1, order_data=3,
+            random_crop=False,
+            p_el_per_sample=1.0, p_rot_per_sample=1.0, p_scale_per_sample=1.0
+        ))
+    # tr_transforms.append(
+    #     SpatialTransform(
+    #         patch_size=bbox_image.shape,
+    #         patch_center_dist_from_border=[i // 2 for i in bbox_image.shape],
+    #         do_elastic_deform=True, alpha=(2000., 2100.), sigma=(10., 11.),
+    #         do_rotation=False,
+    #         angle_x=(- 15 / 360. * 2 * np.pi, 15 / 360. * 2 * np.pi),
+    #         angle_y=(- 15 / 360. * 2 * np.pi, 15 / 360. * 2 * np.pi),
+    #         angle_z=(- 15 / 360. * 2 * np.pi, 15 / 360. * 2 * np.pi),
+    #         do_scale=False,
+    #         scale=(0.75, 0.75),
+    #         border_mode_data='constant', border_cval_data=0,
+    #         border_mode_seg='constant', border_cval_seg=0,
+    #         order_seg=1, order_data=3,
+    #         random_crop=True,
+    #         p_el_per_sample=1.0, p_rot_per_sample=1.0, p_scale_per_sample=1.0
+    #     ))
+    # sigma越小，扭曲越局部（即扭曲的越严重）， alpha越大扭曲的越严重
+    # tr_transforms.append(
+    #     SpatialTransform(bbox_image.shape, [i // 2 for i in bbox_image.shape],
+    #                      do_elastic_deform=True, alpha=(1300., 1500.), sigma=(10., 11.),
+    #                      do_rotation=False, angle_z=(0, 2 * np.pi),
+    #                      do_scale=False, scale=(0.3, 0.7),
+    #                      border_mode_data='constant', border_cval_data=0, order_data=1,
+    #                      border_mode_seg='constant', border_cval_seg=0,
+    #                      random_crop=False))
+
+    all_transforms = Compose(tr_transforms)
+    return all_transforms
+
+# demo
+# bbox_image_batch_trans = all_transforms(**bbox_image_batch)  # 加入**相当于
+# bbox_image_batch是一个字典，'data'和'seg'字段，形状为【bz，c，w，h，l】
+
+class aug3D():
+    def __init__(self, size = [256,256,256], deformation_scale = 0.2):
+        self.trans = get_transformer(size, deformation_scale)
+    def aug(self, batch_dict):
+        """
+        batch 中不同样本会经过不同的变换，即一个batch内样本间是不一样的变换
+        batch_dict， data和seg字段，如下面的形状
+        :param img: 【bz，c，w，h，l】
+        :param seg: 【bz，c，w，h，l】
+        :return:
+        """
+        img = batch_dict['data']
+        if 'seg' in batch_dict.keys():
+            seg = batch_dict['seg']
+        else:
+            seg = None
+
+
+        if seg is not None:
+            return self.trans(data = img, seg = seg)
+        else:
+            return self.trans(data = img)
 
 # import numpy as np
 # import imgaug.augmenters as iaa
@@ -151,5 +236,7 @@ def img_aug_augmenter(batch_dict):
 
 
 
+if __name__ == '__main__':
 
+    print('demo')
 

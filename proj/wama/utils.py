@@ -64,6 +64,12 @@ def resize3D(img, aimsize, order = 3):
     _shape =img.shape
     if len(aimsize)==1:
         aimsize = [aimsize[0] for _ in range(3)]
+    if aimsize[0] is None:
+        return zoom(img, (1, aimsize[1] / _shape[1], aimsize[2] / _shape[2]),order=order)  # resample for cube_size
+    if aimsize[1] is None:
+        return zoom(img, (aimsize[0] / _shape[0], 1, aimsize[2] / _shape[2]),order=order)  # resample for cube_size
+    if aimsize[2] is None:
+        return zoom(img, (aimsize[0] / _shape[0], aimsize[1] / _shape[1], 1),order=order)  # resample for cube_size
     return zoom(img, (aimsize[0] / _shape[0], aimsize[1] / _shape[1], aimsize[2] / _shape[2]), order=order)  # resample for cube_size
 
 def show1D(vector):
@@ -276,6 +282,8 @@ def writeIMG(filename,scan,spacing,origin,transfmat):
     :return:
     """
     # write mhd/NIFTI image
+    scan = np.transpose(scan, (2, 0, 1)) #  把顺序该回去
+
     itkim = sitk.GetImageFromArray(scan, isVector=False) #3D image
     itkim.SetSpacing(spacing) #voxelsize
     itkim.SetOrigin(origin) #world coordinates of origin
@@ -1505,7 +1513,7 @@ class wama():
 
 
     """prepocessing"""
-    def resample(self, img_type, aim_spacing): # TODO
+    def resample(self, img_type, aim_spacing, order = 3): # TODO
         """
 
         :param img_type:
@@ -1533,9 +1541,9 @@ class wama():
         # 记录aim_spacing
         self.resample_spacing[img_type] = aim_spacing
         # 先对原图操作
-        self.scan[img_type] = zoom(self.scan[img_type], trans_rate,order=3) # 用双三次插值？
+        self.scan[img_type] = zoom(self.scan[img_type], trans_rate,order=order) # 用双三次插值？
         # 再对mask操作
-        if img_type in self.scan.keys():
+        if img_type in self.sementic_mask.keys():
             self.sementic_mask[img_type] = zoom(self.sementic_mask[img_type], trans_rate, order=0)  # 最近邻插值？（检查下是不是还是二值图接可）
         # 再对BBox操作（转化为mask，之后resize，之后取bbox）
         if img_type in self.bbox.keys():

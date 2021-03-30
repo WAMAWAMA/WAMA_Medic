@@ -2,8 +2,8 @@ from wama.utils import *
 
 
 #
-img_path = r'E:\@data_NENs\@data_NENs_recurrence\or_data\data\nii\aWITHmask4radiomics\s42_v1.nii'
-mask_path = r'E:\@data_NENs\@data_NENs_recurrence\or_data\data\nii\aWITHmask4radiomics\s42_v1_m1_w.nii'
+img_path = r'D:\git\testnini\s22_v1.nii.gz'
+mask_path = r'D:\git\testnini\s22_v1_m1.nii.gz'
 # img_path = r'D:\git\testnini\s22_v1.nii.gz'
 # mask_path = r'D:\git\testnini\s22_v1_m1.nii.gz'
 subject1 = wama()
@@ -47,7 +47,7 @@ patches = slide_window_n_axis(bbox_image,
                            axesOrder=None,
                            bbox = [0, bbox_image.shape[0],0, bbox_image.shape[1],0, bbox_image.shape[2]],
                            slices = [bbox_image.shape[0]//4-4,bbox_image.shape[1]//2-4,bbox_image.shape[2]//2-4],
-                           stride = [1,1,1],
+                           stride = [20,20,20],
                            expand_r = [1,1,1],
                            mask = bbox_mask,
                            ex_mode = 'bbox',
@@ -59,7 +59,7 @@ patches = slide_window_n_axis(bbox_image,
 # for pp in patches:
 #     pp.data = pp.mask
 # reconstuct_img = slide_window_n_axis_reconstruct([patches[0]])
-reconstuct_img = slide_window_n_axis_reconstruct(qweqwe)
+reconstuct_img = slide_window_n_axis_reconstruct(patches)
 # show3Dslice(mat2gray(np.concatenate([reconstuct_img,bbox_image],axis=1)))
 show3D(np.concatenate([reconstuct_img,bbox_image],axis=1))
 # show3D((reconstuct_img))

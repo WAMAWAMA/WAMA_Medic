@@ -1,5 +1,6 @@
 # 来自3D的尝试,首先读取数据
 from wama.utils import *
+from wama.data_augmentation import aug3D
 img_path = r'D:\git\testnini\s22_v1.nii.gz'
 mask_path = r'D:\git\testnini\s22_v1_m1.nii.gz'
 subject1 = wama()
@@ -12,7 +13,16 @@ bbox_image = subject1.getImagefromBbox('CT',ex_mode='square')
 bbox_image_batch = np.expand_dims(np.stack([bbox_image,bbox_image,bbox_image]),axis=1)
 bbox_mask_batch = np.zeros(bbox_image_batch.shape)
 bbox_mask_batch[:,:,20:100,20:100,20:100] = 1
-bbox_image_batch = {'data':bbox_image_batch,'seg':bbox_mask_batch,'some_other_key':'as'}
+# bbox_image_batch = {'data':bbox_image_batch,'seg':bbox_mask_batch,'some_other_key':'as'}
+
+auger = aug3D(size=[120,120,120], deformation_scale = 0.25)
+aug_result = auger.aug(dict(data=bbox_image_batch, seg = bbox_mask_batch))
+show3D(np.concatenate([np.squeeze(aug_result['seg'][0],axis=0),np.squeeze(bbox_mask_batch[0],axis=0)],axis=1))
+show3D(np.concatenate([np.squeeze(aug_result['seg'][1],axis=0),np.squeeze(bbox_mask_batch[1],axis=0)],axis=1))
+
+
+
+
 
 
 # 构建transformer
@@ -21,7 +31,7 @@ from batchgenerators.transforms.abstract_transforms import Compose
 from batchgenerators.transforms.spatial_transforms import SpatialTransform_2,SpatialTransform
 tr_transforms = []
 # tr_transforms.append(MirrorTransform(axes=(0, 1, 2)))
-deformation_scale = 0.2  # 0几乎没形变，0.2形变很大，故0~0.25是合理的
+deformation_scale = 0.0  # 0几乎没形变，0.2形变很大，故0~0.25是合理的
 # （这个SpatialTransform_2与SpatialTransform的区别就在这里，SpatialTransform_2提供了有一定限制的扭曲变化，保证图像不会过度扭曲）
 tr_transforms.append(
     SpatialTransform_2(
@@ -32,7 +42,7 @@ tr_transforms.append(
         angle_x=(- 15 / 360. * 2 * np.pi, 15 / 360. * 2 * np.pi),
         angle_y=(- 15 / 360. * 2 * np.pi, 15 / 360. * 2 * np.pi),
         angle_z=(- 15 / 360. * 2 * np.pi, 15 / 360. * 2 * np.pi),
-        do_scale=False,
+        do_scale=True,
         scale=(0.75, 1.25),
         border_mode_data='constant', border_cval_data=0,
         border_mode_seg='constant', border_cval_seg=0,
@@ -71,14 +81,16 @@ all_transforms = Compose(tr_transforms)
 
 
 
-bbox_image_batch_trans = all_transforms(**bbox_image_batch)
+bbox_image_batch_trans = all_transforms(**bbox_image_batch)  # 加入**相当于
 # bbox_image_batch_trans1 = all_transforms(**bbox_image_batch)
 
 # show3D(np.concatenate([np.squeeze(bbox_image_batch['data'][0],axis=0),np.squeeze(bbox_image_batch_trans['data'][1],axis=0)],axis=1))
 # show3Dslice(np.concatenate([np.squeeze(bbox_image_batch['data'][0],axis=0),np.squeeze(bbox_image_batch_trans['data'][1],axis=0)],axis=1))
 # show3Dslice(np.concatenate([np.squeeze(bbox_image_batch['seg'][0],axis=0),np.squeeze(bbox_image_batch_trans['seg'][1],axis=0)],axis=1))
-show3D(np.concatenate([np.squeeze(bbox_image_batch['seg'][0],axis=0),np.squeeze(bbox_image_batch_trans['seg'][1],axis=0)],axis=1))
-# show3D(np.concatenate([np.squeeze(bbox_image_batch_trans1['data'][0],axis=0),np.squeeze(bbox_image_batch_trans['data'][0],axis=0)],axis=1))
+show3D(np.concatenate([np.squeeze(bbox_image_batch['seg'][0],axis=0),np.squeeze(bbox_image_batch_trans['seg'][0],axis=0)],axis=1))
+show3D(np.concatenate([np.squeeze(bbox_image_batch['seg'][1],axis=0),np.squeeze(bbox_image_batch_trans['seg'][1],axis=0)],axis=1))
+show3D(np.concatenate([np.squeeze(bbox_image_batch['data'][0],axis=0),np.squeeze(bbox_image_batch_trans['data'][0],axis=0)],axis=1))
+# show3Dslice(np.concatenate([np.squeeze(bbox_image_batch['data'][0],axis=0),np.squeeze(bbox_image_batch_trans['data'][0],axis=0)],axis=1))
 # show3Dslice(np.concatenate([np.squeeze(bbox_image_batch_trans1['data'][0],axis=0),np.squeeze(bbox_image_batch_trans['data'][0],axis=0)],axis=1))
 
 
