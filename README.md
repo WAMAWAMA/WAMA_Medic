@@ -40,7 +40,7 @@ todo
  - 优化处理速度
  - 衍生图像，如边缘强化、小波分解
 
-## 加载原始图像和mask,体素重采样，调整窗宽窗位，3D可视化
+## 1.加载原始图像和mask,体素重采样，调整窗宽窗位，3D可视化
 
 
 ```python
@@ -97,7 +97,7 @@ subject1.show_bbox('CT', 2)  # 显示bbox形状，注意，不存在bbox时，�
 </table>
 
 
-## 任意维度分割或重组patch
+## 2.任意维度分割或重组patch
 
 准确的说，是将patch还原到原始空间对应的位置
 如一个patch经过分割网络，输出该patch的分割结果，一个即可还原到原始位置可视化。
@@ -220,7 +220,7 @@ show3D(np.concatenate([bbox_image, reconstuct_img_onlyone], axis=1))
 </table>
 
 
-## 3D图像增强或扩增
+## 3.图像增强或扩增（3D）
 
 
 ```python
