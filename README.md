@@ -2,14 +2,14 @@
 # ωαмα
 一个粗糙的医学图像预处理与3D或2D可视化的库
 
-（🐢building...，ps：墙内不翻墙看不到例子图）
+（🐢building...）
 
 
 **环境准备：**
 安装的包有
  - `simpleITK`
  - [`batchgenerator`](https://github.com/MIC-DKFZ/batchgenerators)
- - `mayavi`（optional，Windows不可直接安装，自行搜索）
+ - `mayavi`（optional，Windows不可直接安装，请自行搜索安装方法）
 
 
 
