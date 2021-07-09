@@ -2,14 +2,14 @@
 # ωαмα
 一个粗糙的医学图像预处理与3D或2D可视化的库
 
-（🐢building...，ps：墙内不翻墙看不到例子图）
+（🐢building...）
 
 
 **环境准备：**
 安装的包有
  - `simpleITK`
  - [`batchgenerator`](https://github.com/MIC-DKFZ/batchgenerators)
- - `mayavi`（optional，Windows不可直接安装，自行搜索）
+ - `mayavi`（optional，Windows不可直接安装，请自行搜索安装方法）
 
 
 
@@ -36,9 +36,11 @@
  - 实验性质的比较多，如data_loader_beta.py，完成度较低，可按需自取
 
 todo
- - case间与模态间的配准算法
- - 优化处理速度
- - 衍生图像，如边缘强化、小波分解
+ - [ ] 可视化透明度控制
+ - [ ] 多类分割标签可视化
+ - [ ] case间与模态间的配准算法
+ - [ ] 优化处理速度
+ - [ ] 衍生图像，如边缘强化、小波分解
 
 ## 1.加载原始图像和mask,体素重采样，调整窗宽窗位，3D可视化
 
@@ -269,3 +271,37 @@ show3D(np.concatenate([aug_img,bbox_image],axis=1)*100)
 
 </table>
 
+
+## ?.图像减裁
+```python
+from wama.utils import *
+
+img_path = r"D:\git\testnini\s1_v1.nii"
+mask_path = r"D:\git\testnini\s1_v1_m1_w.nii"
+
+subject1 = wama()  # 构建实例
+subject1.appendImageFromNifti('CT', img_path)  # 加载图像，自定义模态名，如‘CT’
+subject1.appendSementicMaskFromNifti('CT', mask_path)  # 加载mask，注意模态名要对应
+# 也可以使用appendImageAndSementicMaskFromNifti同时加载图像和mask
+
+print(subject1.scan['CT'].shape)
+
+
+# 截取
+subject1.scan['CT'] = subject1.scan['CT'][:,:,:100]
+subject1.sementic_mask['CT'] = subject1.sementic_mask['CT'][:,:,:100]
+
+print(subject1.scan['CT'].shape)
+
+
+writeIMG(r"D:\git\testnini\s1_v1_cut.nii",
+		 subject1.scan['CT'],
+		 subject1.spacing['CT'],
+		 subject1.origin['CT'],
+		 subject1.transfmat['CT'])
+writeIMG(r"D:\git\testnini\s1_v1_m1_w_cut.nii",
+		 subject1.sementic_mask['CT'],
+		 subject1.spacing['CT'],
+		 subject1.origin['CT'],
+		 subject1.transfmat['CT'])
+```
