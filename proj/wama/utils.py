@@ -64,13 +64,27 @@ def resize3D(img, aimsize, order = 3):
     _shape =img.shape
     if len(aimsize)==1:
         aimsize = [aimsize[0] for _ in range(3)]
-    if aimsize[0] is None:
-        return zoom(img, (1, aimsize[1] / _shape[1], aimsize[2] / _shape[2]),order=order)  # resample for cube_size
-    if aimsize[1] is None:
-        return zoom(img, (aimsize[0] / _shape[0], 1, aimsize[2] / _shape[2]),order=order)  # resample for cube_size
-    if aimsize[2] is None:
-        return zoom(img, (aimsize[0] / _shape[0], aimsize[1] / _shape[1], 1),order=order)  # resample for cube_size
-    return zoom(img, (aimsize[0] / _shape[0], aimsize[1] / _shape[1], aimsize[2] / _shape[2]), order=order)  # resample for cube_size
+
+    # 根据情况判断，共有哪些轴需要被缩放
+    if aimsize.count(None) == 3: # 无需缩放
+        return img
+    elif aimsize.count(None) == 2: # 需缩放1个轴
+        if aimsize[0] is not None:
+            return zoom(img, (aimsize[0] / _shape[0], 1, 1), order=order)
+        if aimsize[1] is not None:
+            return zoom(img, (1, aimsize[1] / _shape[1], 1), order=order)
+        if aimsize[2] is not None:
+            return zoom(img, (1, 1, aimsize[2] / _shape[2]), order=order)
+    elif aimsize.count(None) == 1: # 需缩放2个轴
+        if aimsize[0] is None:
+            return zoom(img, (1, aimsize[1] / _shape[1], aimsize[2] / _shape[2]),order=order)
+        if aimsize[1] is None:
+            return zoom(img, (aimsize[0] / _shape[0], 1, aimsize[2] / _shape[2]),order=order)
+        if aimsize[2] is None:
+            return zoom(img, (aimsize[0] / _shape[0], aimsize[1] / _shape[1], 1),order=order)
+    else: # 需缩放三个轴
+        return zoom(img, (aimsize[0] / _shape[0], aimsize[1] / _shape[1], aimsize[2] / _shape[2]), order=order)
+
 
 def show1D(vector):
     plt.plot(vector)

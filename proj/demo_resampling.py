@@ -2,12 +2,13 @@ from wama.utils import *
 
 # img_path = r"E:\@data_hcc_rna_mengqi\new\human_yuhou\P018\T2WI\nifti.nii.gz"
 # # img_path = r'E:\@data_hcc_rna_mengqi\new\human_FCM\05\Tu05.nii.gz'
-# # img_path1 = r'D:\git\testnini\1_CT.nii.gz'
+img_path1 = r"D:\git\testnini\s1_v1_m1_w.nii"
 #
-# subject1 = wama()
-# subject1.appendImageFromNifti('PET', img_path)
+subject1 = wama()
+subject1.appendImageFromNifti('PET', img_path1)
 #
-# subject1.resample('PET',aim_spacing=[1.,1.,1.], order=0)
+subject1.resample('PET',aim_spacing=[3.,3.,3.], order=0)
+show3D(subject1.scan['PET'])
 # writeIMG(r"E:\@data_hcc_rna_mengqi\new\human_yuhou\P018\T2WI\nifti_111.nii.gz",subject1.scan['PET'],subject1.resample_spacing['PET'],subject1.origin['PET'],subject1.transfmat['PET'])
 #
 

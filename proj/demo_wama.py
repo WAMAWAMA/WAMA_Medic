@@ -1,15 +1,42 @@
 from wama.utils import *
 
-img_path = r"D:\git\testnini\s1_v1.nii"
-mask_path = r"D:\git\testnini\s1_v1_m1_w.nii"
+img_path = r"F:\@data_guoyuan\we\TCGA-BRCA ROI\low-group\TCGA-E2-A1IE\TCGA-E2-A1IE-img.nii.gz"
+mask_path = r"D:\git\testnini\heatmap_new.nii.gz"
 
 subject1 = wama()  # 构建实例
-subject1.appendImageFromNifti('CT', img_path)  # 加载图像，自定义模态名，如‘CT’
+subject1.appendImageFromNifti('CT', mask_path)  # 加载图像，自定义模态名，如‘CT’
 subject1.appendSementicMaskFromNifti('CT', mask_path)  # 加载mask，注意模态名要对应
+subject1.getBbox()
 # 也可以使用appendImageAndSementicMaskFromNifti同时加载图像和mask
 
-subject1.resample('CT', aim_spacing=[1, 1, 1])  # 重采样到1x1x1 mm， 注意单位是mm
-subject1.adjst_Window('CT', WW=321, WL=123)  # 调整窗宽窗位
+print(subject1.scan['CT'].shape)
+
+
+# 截取
+subject1.scan['CT'] = subject1.scan['CT'][:,:,:100]
+subject1.sementic_mask['CT'] = subject1.sementic_mask['CT'][:,:,:100]
+
+print(subject1.scan['CT'].shape)
+
+
+writeIMG(r"D:\git\testnini\s1_v1_cut.nii",
+		 subject1.scan['CT'],
+		 subject1.spacing['CT'],
+		 subject1.origin['CT'],
+		 subject1.transfmat['CT'])
+writeIMG(r"D:\git\testnini\s1_v1_m1_w_cut.nii",
+		 subject1.sementic_mask['CT'],
+		 subject1.spacing['CT'],
+		 subject1.origin['CT'],
+		 subject1.transfmat['CT'])
+
+
+
+
+
+
+
+
 
 # 平滑去噪
 qwe = subject1.slice_neibor_add('CT', axis=['z'], add_num=[7], add_weights='Gaussian')  # 使用高斯核，在z轴平滑

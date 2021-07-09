@@ -37,17 +37,19 @@ def dcm2nii(file_path):
 
 
 
-path_all = r'E:\@data_hcc_rna_mengqi\new\mice_rna_MRI'
+path_all = r'E:\task\BC_data\raw_data\train1\train1-177_after\train\train-high-1-35'
+save_pth = r'E:\task\BC_data\raw_data_nii\train\high'
 dir_list = os.listdir(path_all)
 dir_list = [path_all+sep+i for i in dir_list if '.' not in i]
 dir_list_final = []
 for dir in dir_list:
     tmp_dir_list = os.listdir(dir)
-    tmp_dir_list = [dir+sep+i for i in tmp_dir_list if '.' not in i]
+    tmp_dir_list = [dir+sep+i for i in tmp_dir_list if 'C3' in i]
     for i in tmp_dir_list:
         dir_list_final.append(i)
 
 fail_list = []
+
 for index,i in enumerate(dir_list_final):
     print(i,index+1,'/',len(dir_list_final))
     if not os.path.exists(i+sep+'nifti.nii.gz'):

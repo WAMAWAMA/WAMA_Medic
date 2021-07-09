@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from copy import deepcopy
 
 
-filename = r"E:\@data_hcc_rna_mengqi\new\mice_rna_MRI\0219\0219.nii.gz"
+filename = r"D:\software\wechat\savefile\WeChat Files\wozuiaipopo520\FileStorage\File\2021-06\qqwe\+C\ZhangXiaoZhen_801_1195_0439.dcm.nii.gz"
 
 itkimage = sitk.ReadImage(filename)
 # 读取图像数据

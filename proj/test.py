@@ -45,3 +45,9 @@ metadata[0][metadata[0]<=0] = 0
 writeIMG(r'D:\new\newnew\1.nii', metadata[0],metadata[1],metadata[2],metadata[3])
 
 
+for case in dataset_test['train_set']:
+	print(case['mask_path'])
+	show3Dslice(np.concatenate([mat2gray(case['img']),case['mask']],axis=1))
+	f = input()
+	if f == '0':
+		break
