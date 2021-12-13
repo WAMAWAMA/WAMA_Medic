@@ -24,3 +24,21 @@ index = 1
 show3D(np.concatenate([np.squeeze(aug_result['seg'][index],axis=0),np.squeeze(bbox_mask_batch[index],axis=0)],axis=1))
 aug_img = np.squeeze(aug_result['data'][index],axis=0)
 show3D(np.concatenate([aug_img,bbox_image],axis=1)*100)
+
+pth = r"C:\1225827_Han Li Hua_tumor2.pkl"
+case = load_from_pkl(pth)
+show3Dslice(np.concatenate([mat2gray(adjustWindow(case['img'], 321, 123)), case['mask']],1))
+show3D(np.concatenate([mat2gray(adjustWindow(case['img'], 321, 123)), case['mask']],1))
+show3D(case['mask'])
+
+# from sklearn.ensemble import BaggingClassifier
+# from sklearn.neighbors import KNeighborsClassifier
+# bagging = BaggingClassifier(KNeighborsClassifier(),...                             max_samples=0.5, max_features=0.5)
+
+
+
+
+
+
+
+
