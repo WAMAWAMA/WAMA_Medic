@@ -10,8 +10,9 @@
 安装的包有
  - `simpleITK`
  - [`batchgenerator`](https://github.com/MIC-DKFZ/batchgenerators)
- - `mayavi`（optional，Windows不可直接安装，请自行搜索安装方法）
-
+ - `mayavi`（optional，Windows不可直接安装，请自行搜索安装方法，或直接将下面网盘链接里的安装好mayavi的conda env复制到本地conda的envs路径下即可）
+ 
+ mayavi的conda env: https://pan.baidu.com/s/1DsddpkbWJ9vexi94xv2dXA 提取码: tqu4 
 
 
 # 主要的功能
