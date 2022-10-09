@@ -14,7 +14,7 @@
  
  mayavi的conda env: https://pan.baidu.com/s/1DsddpkbWJ9vexi94xv2dXA 提取码: tqu4 
  
- demo data（包括CT和MRI，分别来自 TotalSegmentator 和 MICCAI 2015 OAR dataset）：[Google drive](https://drive.google.com/drive/folders/17Gq9TaU057ptgc5PIFrOy5jmnxRRktCW?usp=sharing)
+ demo data [[Google drive]](https://drive.google.com/drive/folders/17Gq9TaU057ptgc5PIFrOy5jmnxRRktCW?usp=sharing)（包括CT和MRI，分别来自 TotalSegmentator 和 MICCAI 2015 OAR dataset）
 
 # 主要的功能
 
