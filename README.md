@@ -13,7 +13,8 @@
  - `mayavi`（optional，Windows不可直接安装，请自行搜索安装方法，或直接将下面网盘链接里的安装好mayavi的conda env复制到本地conda的envs路径下即可）
  
  mayavi的conda env: https://pan.baidu.com/s/1DsddpkbWJ9vexi94xv2dXA 提取码: tqu4 
-
+ 
+ demo data（包括CT和MRI，分别来自 TotalSegmentator 和 MICCAI 2015 OAR dataset）：[Google drive](https://drive.google.com/drive/folders/17Gq9TaU057ptgc5PIFrOy5jmnxRRktCW?usp=sharing)
 
 # 主要的功能
 
