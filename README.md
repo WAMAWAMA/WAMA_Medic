@@ -1,49 +1,51 @@
 
 # ω👁м👁 medic
-一个粗糙的医学图像预处理与3D或2D可视化的库
-直接在python环境中可视化，可直接观察数据处理前后效果，避免使用mitk或itk-snap等繁琐操作
+A simple-to-use yet function-rich medical image processing toolbox
 
-（🐢building...）
+Highlights: 
+1) 2D and 3D visualization directly in the python environment, which is convenient for debugging code; 
+2) provides functions such as resampleing, dividing patches, restoring patches, etc.
 
 
-**环境准备：**
-安装的包有
+
+
+
+**Environmental Preparation**
  - `simpleITK`
  - [`batchgenerator`](https://github.com/MIC-DKFZ/batchgenerators)
- - `mayavi`（optional，Windows不可直接安装，请自行搜索安装方法，或直接将下面网盘链接里的安装好mayavi的conda env复制到本地conda的envs路径下即可）
+ - `mayavi`（optional，cannot be installed directly on Windows, please search for the installation method by yourself, or directly copy the `conda env` of the installed mayavi in the following download link to the envs path of the local conda.）
  
- mayavi的conda env: https://pan.baidu.com/s/1DsddpkbWJ9vexi94xv2dXA 提取码: tqu4 
+ mayavi conda env: [[baidu disk with pw:tqu4]](https://pan.baidu.com/s/1DsddpkbWJ9vexi94xv2dXA)
  
- demo data [[Google drive]](https://drive.google.com/drive/folders/17Gq9TaU057ptgc5PIFrOy5jmnxRRktCW?usp=sharing)（包括CT和MRI，分别来自 TotalSegmentator 和 MICCAI 2015 OAR dataset）
+ demo data: [[Google drive]](https://drive.google.com/drive/folders/17Gq9TaU057ptgc5PIFrOy5jmnxRRktCW?usp=sharing)（Includes CT and MRI from TotalSegmentator and MICCAI 2015 OAR datasets, respectively）
 
-# 主要的功能
+# Main function
 
- - 加载nii或nii.gz格式医学图像（一个患者可加载多个模态）
- - 体素重采样
- - 窗宽窗位调整
- - 任意维度分割或**重组**patch
- - 3D体可视化原图、mask、bbox（可交互）
- - 3D层可视化原图、mask、bbox（可交互）
- - 按照mask生成bbox（即ROI），并将ROI内图像crop
-
-
-可以用来
- - 数据预处理，如重采样，或PET到SPECT对齐
- - 分patch
- - 观察3D扩增后的整体效果（如3D扭曲和patch重组）
+  - Load medical images in nii or nii.gz format (one patient can load multiple modalities)
+  - Voxel resampling
+  - 2D, 3D, nD image scaling
+  - Get the bounding box of the mask
+  - Window width and window level adjustment
+  - Arbitrary dimension split or **reorganize** patches
+  - 3D volume visualization of original image, mask, bbox (interactive)
+  - 3D layer visualization of original image, mask, bbox (interactive)
+  - Generate bbox (ie ROI) according to the mask, and crop the image in the ROI
 
 
+can be used to
+  - Data preprocessing such as resampling
+  - extract patches from scan
+  - reorganize scan from patches
+  - Observe the overall effect after 3D amplification (such as 3D warping and patch recombination)
 
 
-文件夹中其他一些诡异的代码
- - 实验性质的比较多，如data_loader_beta.py，完成度较低，可按需自取
 
 todo
- - [ ] 可视化透明度控制
- - [ ] 多类分割标签可视化
- - [ ] case间与模态间的配准算法
- - [ ] 优化处理速度
- - [ ] 衍生图像，如边缘强化、小波分解
+  - [ ] Visual transparency control
+  - [ ] Multi-class segmentation label visualization
+  - [ ] Registration algorithm between cases and modes
+  - [ ] Optimize processing speed
+  - [ ] Derivative images such as edge enhancement, wavelet decomposition
 
 ## 1.加载原始图像和mask,体素重采样，调整窗宽窗位，3D可视化
 
