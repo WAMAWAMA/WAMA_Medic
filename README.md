@@ -10,7 +10,7 @@ Highlights
 
 
 
-Environmental Preparation
+# Environmental Preparation
  - `simpleITK`
  - [`batchgenerator`](https://github.com/MIC-DKFZ/batchgenerators)
  - `mayavi`（optional，cannot be installed directly on Windows, please search for the installation method by yourself, or directly copy the `conda env` of the installed mayavi in the following download link to the envs path of the local conda.）
