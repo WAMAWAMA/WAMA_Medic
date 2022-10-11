@@ -68,10 +68,7 @@ subject1.adjst_Window('CT', WW = 321, WL = 123) # Adjust window width and window
 # 3D visualization
 subject1.show_scan('CT', show_type='slice')  # Display original image in slice mode
 subject1.show_scan('CT', show_type='volume')  # Display original image in volume mode
-
 subject1.show_MaskAndScan('CT', show_type='volume') # Display original image and mask at the same time
-
-
 subject1.show_bbox('CT', 2)  # Display the bbox shape. Note that when there is no bbox, the minimum external matrix is automatically generated from the mask as bbox
 
 ```
