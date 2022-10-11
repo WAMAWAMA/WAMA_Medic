@@ -101,10 +101,9 @@ subject1.show_bbox('CT', 2)  # Display the bbox shape. Note that when there is n
 </table>
 
 
-## 2.任意维度分割或重组patch
+## Demo 2.Split or reorganize patches in any dimension
 
-准确的说，是将patch还原到原始空间对应的位置
-如一个patch经过分割网络，输出该patch的分割结果，一个即可还原到原始位置可视化。
+To be precise, it is to restore the patch to the corresponding position in the original space. If a patch passes through the segmentation network and outputs the segmentation result of the patch, one can be restored to the original position for visualization.
 
 
 ```python
@@ -113,41 +112,61 @@ from wama.utils import *
 img_path = r"D:\git\testnini\s1_v1.nii"
 mask_path = r"D:\git\testnini\s1_v1_m1_w.nii"
 
-subject1 = wama()  # 构建实例
-subject1.appendImageFromNifti('CT', img_path)  # 加载图像，自定义模态名，如‘CT’
-subject1.appendSementicMaskFromNifti('CT', mask_path)  # 加载mask，注意模态名要对应
-# 也可以使用appendImageAndSementicMaskFromNifti同时加载图像和mask
+subject1 = wama()  # build instance
+subject1.appendImageFromNifti('CT', img_path)  # Load image, custom modal name, such as 'CT'
+subject1.appendSementicMaskFromNifti('CT', mask_path)  # Load the mask, pay attention to the corresponding modal name
+# also can use appendImageAndSementicMaskFromNifti to load both image and mask at the same time
 
-subject1.resample('CT', aim_spacing=[1, 1, 1])  # 重采样到1x1x1 mm， 注意单位是mm
-subject1.adjst_Window('CT', WW=321, WL=123)  # 调整窗宽窗位
+subject1.resample('CT', aim_spacing=[1, 1, 1])  # Resample to 1x1x1 mm (note the unit is mm)
+subject1.adjst_Window('CT', WW=321, WL=123)  # Adjust window width and window level
 
-# 平滑去噪
-qwe = subject1.slice_neibor_add('CT', axis=['z'], add_num=[7], add_weights='Gaussian')  # 使用高斯核，在z轴平滑
+# smooth denoising
+qwe = subject1.slice_neibor_add('CT', axis=['z'], add_num=[7], add_weights='Gaussian')  # Use a Gaussian kernel, smooth on the z-axis
 
-# 提取bbox内图像（bbox即分割mask的最小外接矩阵）
+# Extract the image in the bbox (bbox is the minimum external matrix of the segmentation mask)
 bbox_image = subject1.getImagefromBbox('CT', ex_mode='square', ex_mms=24, aim_shape=[256, 256, 256])
 
 """
-    分patch的逻辑：
-    1）先框取ROI获得bbox，之后在ROI内进行操作
-    2）外扩roi
-    3）将roi内图像拿出，缩放到aim_shape
-    4）分patch
+The logic of splitting patch:
+     1) First frame the ROI to obtain the bbox, and then operate within the ROI
+     2) External expansion roi
+     3) Take out the image in the roi and scale it to aim_shape
+     4) split patch
 """
 
-# 分patch，设置一：沿着Z轴分patch，patch为2D，且每隔10层取一层
-subject1.makePatch(mode='slideWinND',  # 默认的即可
-				   img_type='CT',  # 关键字
-				   aim_shape=[256, 256, 256],  # 缩放到这个尺寸
-				   slices=[256 // 2, 256 // 2, 1],  # 每个patch在各个维度的长度（注意，Z轴为1，即沿着Z轴分2D patch）
-				   stride=[256 // 2, 256 // 2, 10],  # patch在各个轴的滑动步长（注意这里z轴是10）
-				   expand_r=[1, 1, 1],  # 类似膨胀卷积（空洞卷积）的膨胀系数，1即不膨胀
-				   ex_mode='square',  # 取bbox后，将bbox变为正方体
-				   ex_mms=24,  # bbox外扩（或变为正方体后）多少毫米
+# Split patch(setting 1): divide the patch along the Z axis, the patch is 2D, and take one layer every 10 layers
+subject1.makePatch(mode='slideWinND',  # default is ok
+				   img_type='CT',  # modality keyword
+				   aim_shape=[256, 256, 256],  # scale to this size
+				   slices=[256 // 2, 256 // 2, 1],  # The length of each patch in each dimension (note that the Z axis is 1, that is, 2D patches are divided along the Z axis)
+				   stride=[256 // 2, 256 // 2, 10],  # The sliding window size of the patch in each axis (note that the z axis here is 10)
+				   expand_r=[1, 1, 1],  # Similar to the expansion coefficient of dilated convolution (hole convolution), 1 means no expansion
+				   ex_mode='square',  # After taking the bbox, turn the bbox into a cube
+				   ex_mms=24,  # How many mm does the bbox expand (or after it becomes a cube)
 				   )
-reconstuct_img = slide_window_n_axis_reconstruct(subject1.patches['CT'])  # 将patch放回原空间
+reconstuct_img = slide_window_n_axis_reconstruct(subject1.patches['CT'])  # Put all the patches back into the original space
 reconstuct_img_half = slide_window_n_axis_reconstruct(
-	subject1.patches['CT'][:len(subject1.patches['CT']) // 2])  # 将一半的patch放回原空间
+	subject1.patches['CT'][:len(subject1.patches['CT']) // 2])  # Put half of the patches back into the original space
+
+patch = subject1.patches['CT']  # get patches
+show3D(np.concatenate([bbox_image, reconstuct_img], axis=1))
+show3D(np.concatenate([bbox_image, reconstuct_img_half], axis=1))
+
+
+
+# Split patch(setting 2)：Block (similar to Rubik's Cube)
+subject1.makePatch(mode='slideWinND',  # default is ok
+				   img_type='CT',  # modality keyword
+				   aim_shape=[256, 256, 256],  # scale to this size
+				   slices=[256 // 8, 256 // 8,  256 // 8],
+				   stride=[( 256 // 8)+3, ( 256 // 8)+3, ( 256 // 8)+3],
+				   expand_r=[1, 1, 1], 
+				   ex_mode='square', 
+				   ex_mms=24,
+				   )
+reconstuct_img = slide_window_n_axis_reconstruct(subject1.patches['CT'])
+reconstuct_img_half = slide_window_n_axis_reconstruct(
+	subject1.patches['CT'][:len(subject1.patches['CT']) // 2])
 
 patch = subject1.patches['CT']  # 获取patch
 show3D(np.concatenate([bbox_image, reconstuct_img], axis=1))
@@ -155,40 +174,20 @@ show3D(np.concatenate([bbox_image, reconstuct_img_half], axis=1))
 
 
 
-# 分patch，设置二：分块（类似魔方）
-subject1.makePatch(mode='slideWinND',  # 默认的即可
-				   img_type='CT',  # 关键字
-				   aim_shape=[256, 256, 256],  # 缩放到这个尺寸
-				   slices=[256 // 8, 256 // 8,  256 // 8],  # 每个patch在各个维度的长度（注意，Z轴为1，即沿着Z轴分2D patch）
-				   stride=[( 256 // 8)+3, ( 256 // 8)+3, ( 256 // 8)+3],  # patch在各个轴的滑动步长（注意这里z轴是10）
-				   expand_r=[1, 1, 1],  # 类似膨胀卷积（空洞卷积）的膨胀系数，1即不膨胀
-				   ex_mode='square',  # 取bbox后，将bbox变为正方体
-				   ex_mms=24,  # bbox外扩（或变为正方体后）多少毫米
-				   )
-reconstuct_img = slide_window_n_axis_reconstruct(subject1.patches['CT'])  # 将patch放回原空间
-reconstuct_img_half = slide_window_n_axis_reconstruct(
-	subject1.patches['CT'][:len(subject1.patches['CT']) // 2])  # 将一半的patch放回原空间
-
-patch = subject1.patches['CT']  # 获取patch
-show3D(np.concatenate([bbox_image, reconstuct_img], axis=1))
-show3D(np.concatenate([bbox_image, reconstuct_img_half], axis=1))
-
-
-
-# 分patch，设置三：观察膨胀系数的影响（其实基本用不到）
-subject1.makePatch(mode='slideWinND',  # 默认的即可
-				   img_type='CT',  # 关键字
-				   aim_shape=[256, 256, 256],  # 缩放到这个尺寸
-				   slices=[30, 30, 30],  # 每个patch在各个维度的长度（注意，Z轴为1，即沿着Z轴分2D patch）
-				   stride=[1, 1, 1],  # patch在各个轴的滑动步长（注意这里z轴是10）
-				   expand_r=[5, 5, 5],  # 类似膨胀卷积（空洞卷积）的膨胀系数，1即不膨胀
-				   ex_mode='square',  # 取bbox后，将bbox变为正方体
-				   ex_mms=24,  # bbox外扩（或变为正方体后）多少毫米
+# Split patch(setting 3)：Observe the influence of the expansion coefficient (in fact, it is basically useless)
+subject1.makePatch(mode='slideWinND',
+				   img_type='CT', 
+				   aim_shape=[256, 256, 256], 
+				   slices=[30, 30, 30], 
+				   stride=[1, 1, 1], 
+				   expand_r=[5, 5, 5],  # Similar to the expansion coefficient of dilated convolution (hole convolution), 1 means no expansion
+				   ex_mode='square', 
+				   ex_mms=24,  
 				   )
 
-reconstuct_img_onlyone = slide_window_n_axis_reconstruct([subject1.patches['CT'][0]])  # 将一个patch放回原空间（观察膨胀系数的影响）
+reconstuct_img_onlyone = slide_window_n_axis_reconstruct([subject1.patches['CT'][0]])  # Put only one patch back into the original space (observe the effect of the expansion coefficient)
 
-patch = subject1.patches['CT'] # 获取patch
+patch = subject1.patches['CT'] # get patches
 show3D(np.concatenate([bbox_image, reconstuct_img_onlyone], axis=1))
 
 
@@ -206,8 +205,8 @@ show3D(np.concatenate([bbox_image, reconstuct_img_onlyone], axis=1))
 </tr>
 
 <tr>
-<th>设置一：沿着Z轴分patch，并放回所有patch</th>
-<th>设置一：沿着Z轴分patch，并放回一半patch</th>
+<th>Setting 1: Split the patch along the Z axis and put back allpatch</th>
+<th>Setting 1: Split the patch along the Z axis and put back half of the patch</th>
 </tr>
 
 <!-- Line 1: Original Input -->
@@ -217,15 +216,14 @@ show3D(np.concatenate([bbox_image, reconstuct_img_onlyone], axis=1))
 </tr>
 
 <tr>
-<th>设置二：分块（类似魔方）</th>
-<th>设置三：观察膨胀系数的影响</th>
+<th>Setting 2: Block (similar to Rubik's Cube)</th>
+<th>Setting 3: Observe the effect of the expansion coefficient</th>
 </tr>
 
 </table>
 
 
-## 3.图像增强或扩增（3D）
-
+## 3.Image enhancement or augmentation (3D)
 
 ```python
 
@@ -241,14 +239,14 @@ subject1.adjst_Window('CT', 321, 123)
 bbox_image = subject1.getImagefromBbox('CT',ex_mode='square', aim_shape=[128,128,128])
 
 
-bbox_image_batch = np.expand_dims(np.stack([bbox_image,bbox_image,bbox_image,bbox_image,bbox_image]),axis=1)# 构建batch
+bbox_image_batch = np.expand_dims(np.stack([bbox_image,bbox_image,bbox_image,bbox_image,bbox_image]),axis=1)# build batch
 bbox_mask_batch = np.zeros(bbox_image_batch.shape)
 bbox_mask_batch[:,:,20:100,20:100,20:100] = 1
 
-auger = aug3D(size=[128,128,128], deformation_scale = 0.25) # size为原图大小即可（或batch大小）
-aug_result = auger.aug(dict(data=bbox_image_batch, seg = bbox_mask_batch))  # 注意要以字典形式传入
+auger = aug3D(size=[128,128,128], deformation_scale = 0.25) # The size can be the original image size (or batch size)
+aug_result = auger.aug(dict(data=bbox_image_batch, seg = bbox_mask_batch))  # Note that it needs to be passed in as a dictionary
 
-# 可视化
+# visualization
 index = 1
 show3D(np.concatenate([np.squeeze(aug_result['seg'][index],axis=0),np.squeeze(bbox_mask_batch[index],axis=0)],axis=1))
 aug_img = np.squeeze(aug_result['data'][index],axis=0)
@@ -266,30 +264,30 @@ show3D(np.concatenate([aug_img,bbox_image],axis=1)*100)
 </tr>
 
 <tr>
-<th>原图，扩增前后</th>
-<th>mask，扩增前后</th>
+<th>Original image, before and after amplification</th>
+<th>mask, before and after amplification</th>
 </tr>
 
 
 </table>
 
 
-## ?.图像减裁
+## 4.image cropping
 ```python
 from wama.utils import *
 
 img_path = r"D:\git\testnini\s1_v1.nii"
 mask_path = r"D:\git\testnini\s1_v1_m1_w.nii"
 
-subject1 = wama()  # 构建实例
-subject1.appendImageFromNifti('CT', img_path)  # 加载图像，自定义模态名，如‘CT’
-subject1.appendSementicMaskFromNifti('CT', mask_path)  # 加载mask，注意模态名要对应
-# 也可以使用appendImageAndSementicMaskFromNifti同时加载图像和mask
+subject1 = wama() # build instance
+subject1.appendImageFromNifti('CT', img_path)  # Load image, custom modal name, such as 'CT'
+subject1.appendSementicMaskFromNifti('CT', mask_path)  # Load the mask, pay attention to the corresponding modal name
+# It is also possible to use appendImageAndSementicMaskFromNifti to load both image and mask at the same time
 
 print(subject1.scan['CT'].shape)
 
 
-# 截取
+# crop
 subject1.scan['CT'] = subject1.scan['CT'][:,:,:100]
 subject1.sementic_mask['CT'] = subject1.sementic_mask['CT'][:,:,:100]
 
