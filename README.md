@@ -223,7 +223,7 @@ show3D(np.concatenate([bbox_image, reconstuct_img_onlyone], axis=1))
 </table>
 
 
-## 3.Image enhancement or augmentation (3D)
+## Demo 3.Image enhancement or augmentation (3D)
 
 ```python
 
@@ -272,7 +272,7 @@ show3D(np.concatenate([aug_img,bbox_image],axis=1)*100)
 </table>
 
 
-## 4.image cropping
+## Demo 4.image cropping
 ```python
 from wama.utils import *
 
