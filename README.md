@@ -47,7 +47,7 @@ todo
   - [ ] Optimize processing speed
   - [ ] Derivative images such as edge enhancement, wavelet decomposition
 
-## 1.加载原始图像和mask,体素重采样，调整窗宽窗位，3D可视化
+## Demo1: Load original image and mask, voxel resampling, adjust window width and window level, 3D visualization
 
 
 ```python
@@ -57,22 +57,22 @@ from wama.utils import *
 img_path = r"D:\git\testnini\s1_v1.nii"
 mask_path = r"D:\git\testnini\s1_v1_m1_w.nii"
 
-subject1 = wama()  # 构建实例
-subject1.appendImageFromNifti('CT', img_path)  # 加载图像，自定义模态名，如‘CT’
-subject1.appendSementicMaskFromNifti('CT', mask_path)  # 加载mask，注意模态名要对应
-# 也可以使用appendImageAndSementicMaskFromNifti同时加载图像和mask
+subject1 = wama()  # build instance
+subject1.appendImageFromNifti('CT', img_path)  # Load image, custom modal name, such as 'CT'
+subject1.appendSementicMaskFromNifti('CT', mask_path)  # Load the mask, pay attention to the corresponding modal name
+# also can use appendImageAndSementicMaskFromNifti to load both image and mask at the same time
 
-subject1.resample('CT', aim_spacing=[1, 1, 1])  # 重采样到1x1x1 mm， 注意单位是mm
-subject1.adjst_Window('CT', WW = 321, WL = 123) # 调整窗宽窗位
+subject1.resample('CT', aim_spacing=[1, 1, 1])  # Resample to 1x1x1 mm (note the unit is mm)
+subject1.adjst_Window('CT', WW = 321, WL = 123) # Adjust window width and window level
 
-# 可视化
-subject1.show_scan('CT', show_type='slice')  # 显示原图，slice模式
-subject1.show_scan('CT', show_type='volume')  # 显示原图，volume模式
+# 3D visualization
+subject1.show_scan('CT', show_type='slice')  # Display original image in slice mode
+subject1.show_scan('CT', show_type='volume')  # Display original image in volume mode
 
-subject1.show_MaskAndScan('CT', show_type='volume') # 同时显示原图和mask
+subject1.show_MaskAndScan('CT', show_type='volume') # Display original image and mask at the same time
 
 
-subject1.show_bbox('CT', 2)  # 显示bbox形状，注意，不存在bbox时，自动从mask生成最小外接矩阵为bbox
+subject1.show_bbox('CT', 2)  # Display the bbox shape. Note that when there is no bbox, the minimum external matrix is automatically generated from the mask as bbox
 
 ```
 
@@ -86,8 +86,8 @@ subject1.show_bbox('CT', 2)  # 显示bbox形状，注意，不存在bbox时，�
 </tr>
 
 <tr>
-<th>显示原图，slice模式</th>
-<th>显示原图，volume模式</th>
+<th>Display original image in slice mode</th>
+<th>Display original image in volume mode</th>
 </tr>
 
 <!-- Line 1: Original Input -->
@@ -97,8 +97,8 @@ subject1.show_bbox('CT', 2)  # 显示bbox形状，注意，不存在bbox时，�
 </tr>
 
 <tr>
-<th>同时显示原图和mask</th>
-<th>显示bbox形状</th>
+<th>Display original image and mask at the same time</th>
+<th>show bbox shape</th>
 </tr>
 
 </table>
