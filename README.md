@@ -2,15 +2,15 @@
 # ω👁м👁 medic
 A simple-to-use yet function-rich medical image processing toolbox
 
-Highlights: 
-1) 2D and 3D visualization directly in the python environment, which is convenient for debugging code; 
-2) provides functions such as resampleing, dividing patches, restoring patches, etc.
+Highlights
+ - 2D and 3D visualization directly in the python environment, which is convenient for debugging code; 
+ - provides functions such as resampleing, dividing patches, restoring patches, etc.
 
 
 
 
 
-**Environmental Preparation**
+Environmental Preparation
  - `simpleITK`
  - [`batchgenerator`](https://github.com/MIC-DKFZ/batchgenerators)
  - `mayavi`（optional，cannot be installed directly on Windows, please search for the installation method by yourself, or directly copy the `conda env` of the installed mayavi in the following download link to the envs path of the local conda.）
