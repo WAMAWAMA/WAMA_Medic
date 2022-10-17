@@ -1,5 +1,5 @@
 
-# ω👁м👁 medic
+# ωαмα m💊dic
 A simple-to-use yet function-rich medical image processing toolbox
 
 Highlights
