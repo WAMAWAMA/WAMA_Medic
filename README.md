@@ -42,6 +42,7 @@ can be used to
 
 todo
   - [ ] Visual transparency control
+  - [ ] `Make patches with multi-channel scan and masks`
   - [ ] Multi-class segmentation label visualization
   - [ ] Registration algorithm between cases and modes
   - [ ] Optimize processing speed
