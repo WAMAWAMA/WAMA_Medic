@@ -21,15 +21,15 @@ Highlights
 
 # Main function
 
-  - Load medical images in nii or nii.gz format (one patient can load multiple modalities)
-  - Voxel resampling
-  - 2D, 3D, nD image scaling
-  - Get the bounding box of the mask
-  - Window width and window level adjustment
-  - Arbitrary dimension split or **reorganize** patches
-  - 3D volume visualization of original image, mask, bbox (interactive)
-  - 3D layer visualization of original image, mask, bbox (interactive)
-  - Generate bbox (ie ROI) according to the mask, and crop the image in the ROI
+  - `wama.appendImageFromNifti()` `readIMG()` Load medical images in nii or nii.gz format (one patient can load multiple modalities)
+  - `wama.resample()` Voxel resampling
+  - `resize2D()` `resize3D()` `resizeND()`  2D, 3D, nD image scaling
+  - `make_bbox_from_mask()` Get the bounding box of the mask
+  - `adjustWindow()` Window width and window level adjustment
+  - `slide_window_n_axis_reconstruct()` Arbitrary dimension split or **reorganize** patches
+  - `show3D()` 3D volume visualization of original image, mask, bbox (interactive)
+  - `show3Dslice()` 3D layer visualization of original image, mask, bbox (interactive)
+  - `wama.getImagefromBbox()` Generate bbox (ie ROI) according to the mask, and crop the image in the ROI
 
 
 can be used to
