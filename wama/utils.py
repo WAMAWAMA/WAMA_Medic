@@ -85,6 +85,19 @@ def resize3D(img, aimsize, order = 3):
     else: # 需缩放三个轴
         return zoom(img, (aimsize[0] / _shape[0], aimsize[1] / _shape[1], aimsize[2] / _shape[2]), order=order)
 
+    
+def resizeND(img, aimsize, order = 3):
+    """
+
+    :param img: ND array
+    :param aimsize: list
+    :return:
+    """
+    _shape = img.shape
+    trans_rate = [aimsize[i]/_shape[i] for i in range(len(aimsize))]
+    trans_rate = tuple(trans_rate)
+    return zoom(img, trans_rate, order=order)
+
 
 def show1D(vector):
     plt.plot(vector)
