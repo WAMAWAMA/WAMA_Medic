@@ -1,5 +1,5 @@
 
-# ωαмα m💊dic
+# ωαмα m🩻dic
 A simple-to-use yet function-rich medical image processing toolbox
 
 Highlights
